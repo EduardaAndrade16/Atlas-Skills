@@ -1,0 +1,8 @@
+{
+  "name": "Remix Atlas Skills - Plataforma de Desenvolvimento Profissional",
+  "description": "Plataforma de desenvolvimento profissional personalizado com mapeamento de competências, perfil técnico e integração com back-end Java Spring Boot e MySQL.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
