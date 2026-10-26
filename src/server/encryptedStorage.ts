@@ -150,127 +150,25 @@ export function getStorageStats(): {
 // ==============================================================================
 
 export const INITIAL_PROFILE = {
-  id: 1,
-  userId: 1,
-  headline: 'Engenheira de Software Full Stack & Arquiteta Cloud',
-  bio: 'Desenvolvedora apaixonada por ecossistemas distribuídos, microsserviços em Spring Boot e interfaces responsivas com React. Foco contínuo em boas práticas, escalabilidade e arquiteturas limpas.',
-  primaryArea: 'Desenvolvimento Backend & Cloud',
-  secondaryAreas: ['Arquitetura de Software', 'Frontend Moderno', 'DevOps & CI/CD'],
-  careerGoal: 'Tech Lead / Arquiteta de Soluções Cloud Senior',
-  phone: '+55 (11) 98765-4321',
-  location: 'São Paulo, SP - Brasil',
-  linkedinUrl: 'https://linkedin.com/in/eduarda-andrade',
-  githubUrl: 'https://github.com/eduarda-andrade',
-  portfolioUrl: 'https://eduarda.dev',
-  updatedAt: new Date().toISOString(),
+  id: 0,
+  userId: 0,
+  primaryArea: '',
+  secondaryAreas: [] as string[],
+  careerGoal: '',
 };
-
-export const INITIAL_USER = {
-  id: 1,
-  name: 'Eduarda Andrade',
-  email: 'eduarda.andrade@atlasskills.com',
-  createdAt: '2026-01-15T10:00:00Z',
-};
-
-export const INITIAL_USERS = [
-  {
-    user: INITIAL_USER,
-    passwordHash: 'password123',
-    profile: INITIAL_PROFILE,
-  },
-];
-
-const INITIAL_HARD_SKILLS = [
-  { id: 1, name: 'Java 17 / Spring Boot 3', category: 'Backend', level: 'AVANCADO', yearsOfExperience: 4 },
-  { id: 2, name: 'TypeScript & React', category: 'Frontend', level: 'AVANCADO', yearsOfExperience: 3 },
-  { id: 3, name: 'MySQL & PostgreSQL', category: 'Banco de Dados', level: 'INTERMEDIARIO', yearsOfExperience: 3 },
-  { id: 4, name: 'Docker & Kubernetes', category: 'DevOps / Cloud', level: 'INTERMEDIARIO', yearsOfExperience: 2 },
-  { id: 5, name: 'REST APIs & JWT Auth', category: 'Arquitetura', level: 'ESPECIALISTA', yearsOfExperience: 4 },
-  { id: 6, name: 'Tailwind CSS', category: 'Frontend', level: 'ESPECIALISTA', yearsOfExperience: 3 },
-];
-
-const INITIAL_SOFT_SKILLS = [
-  { id: 1, name: 'Comunicação Assertiva', description: 'Capacidade de alinhar expectativas entre times técnicos e de negócios.', level: 'AVANCADO', contextExample: 'Apresentação de arquiteturas e mentoria técnica de pares.' },
-  { id: 2, name: 'Resolução de Problemas Complexos', description: 'Abordagem analítica para debugar gargalos e criar soluções resilientes.', level: 'ESPECIALISTA', contextExample: 'Diagnóstico de concorrência em transações financeiras.' },
-  { id: 3, name: 'Trabalho Colaborativo', description: 'Espírito de equipe, code review empático e facilitação de cerimônias ágeis.', level: 'AVANCADO', contextExample: 'Pair programming e alinhamentos diários em equipes remotas.' },
-  { id: 4, name: 'Adaptabilidade e Aprendizado Rápido', description: 'Agilidade na assimilação de novos frameworks, ferramentas e domínios.', level: 'ESPECIALISTA', contextExample: 'Migração de monólito para microsserviços em poucas sprints.' },
-];
-
-const INITIAL_COURSES = [
-  { id: 1, name: 'Spring Boot 3 & Microsserviços com Docker', institution: 'Alura', workloadHours: 60, status: 'CONCLUIDO', startDate: '2025-02-10', completionDate: '2025-04-15', certificateUrl: 'https://cursos.exemplo.com/cert/sp3-60h' },
-  { id: 2, name: 'Arquitetura Limpa e DDD na Prática', institution: 'Full Cycle', workloadHours: 80, status: 'CONCLUIDO', startDate: '2025-06-01', completionDate: '2025-09-20', certificateUrl: 'https://cursos.exemplo.com/cert/clean-arch-80h' },
-  { id: 3, name: 'React 19, TypeScript e Server Components', institution: 'Rocketseat', workloadHours: 45, status: 'EM_ANDAMENTO', startDate: '2026-01-10' },
-];
-
-const INITIAL_CERTIFICATIONS = [
-  { id: 1, name: 'AWS Certified Solutions Architect – Associate', issuingOrganization: 'Amazon Web Services (AWS)', issueDate: '2025-05-15', expirationDate: '2028-05-15', credentialId: 'AWS-SAA-839219', credentialUrl: 'https://aws.amazon.com/verification' },
-  { id: 2, name: 'Oracle Certified Professional: Java SE 17 Developer', issuingOrganization: 'Oracle', issueDate: '2024-11-20', credentialId: 'OCP-17-99201', credentialUrl: 'https://catalog-education.oracle.com' },
-];
-
-const INITIAL_PROJECTS = [
-  {
-    id: 1,
-    title: 'Atlas Skills Platform',
-    description: 'Plataforma completa de gestão de competências, perfis profissionais e mapeamento de carreira integrada com Spring Boot e React.',
-    technologies: ['Java 17', 'Spring Boot', 'React', 'TypeScript', 'MySQL', 'JWT', 'Tailwind CSS'],
-    role: 'Tech Lead & Full Stack Developer',
-    repositoryUrl: 'https://github.com/atlas-skills/atlas-platform',
-    liveUrl: 'https://atlas-skills.dev',
-    startDate: '2026-01-01',
-  },
-  {
-    id: 2,
-    title: 'Cloud Event Broker Microservices',
-    description: 'Sistema assíncrono para ingestão e processamento de eventos de alta taxa de transferência com Spring Cloud Stream e RabbitMQ.',
-    technologies: ['Spring Boot', 'RabbitMQ', 'PostgreSQL', 'Docker', 'JUnit 5'],
-    role: 'Backend Architect',
-    repositoryUrl: 'https://github.com/atlas-skills/event-broker',
-    startDate: '2025-08-01',
-    endDate: '2025-12-15',
-  },
-];
-
-const INITIAL_EDUCATION = [
-  {
-    id: 1,
-    institution: 'Universidade de São Paulo (USP)',
-    degree: 'Bacharelado em Ciência da Computação',
-    fieldOfStudy: 'Ciência da Computação & Engenharia de Software',
-    status: 'CONCLUIDO',
-    startDate: '2020-02-01',
-    endDate: '2024-12-15',
-  },
-  {
-    id: 2,
-    institution: 'FIAP',
-    degree: 'Pós-Graduação / Especialização em Cloud Computing & DevOps Architecture',
-    fieldOfStudy: 'Arquitetura Cloud e Sistemas Distribuídos',
-    status: 'EM_ANDAMENTO',
-    startDate: '2025-03-01',
-  },
-];
-
-const INITIAL_EXPERIENCES = [
-  {
-    id: 1,
-    company: 'Nexus Tech Solutions',
-    position: 'Engenheira de Software Full Stack Pleno',
-    workModel: 'REMOTO',
-    startDate: '2024-03-01',
-    isCurrent: true,
-    activities: 'Desenvolvimento e sustentação de microsserviços em Spring Boot 3; implementação de pipelines CI/CD; modelagem de dados no MySQL e criação de SPAs em React com TypeScript.',
-  },
-  {
-    id: 2,
-    company: 'Innovate Inovação Digital',
-    position: 'Desenvolvedora Backend Jr',
-    workModel: 'HIBRIDO',
-    startDate: '2022-08-01',
-    endDate: '2024-02-28',
-    isCurrent: false,
-    activities: 'Criação de endpoints REST, automação de testes unitários com JUnit 5 e Mockito, integração de sistemas legados e otimização de consultas SQL.',
-  },
-];
+export const INITIAL_USER: null = null;
+export const INITIAL_USERS: Array<{
+  user: { id: number; name: string; email: string; createdAt: string };
+  passwordHash: string;
+  profile: typeof INITIAL_PROFILE;
+}> = [];
+const INITIAL_HARD_SKILLS: unknown[] = [];
+const INITIAL_SOFT_SKILLS: unknown[] = [];
+const INITIAL_COURSES: unknown[] = [];
+const INITIAL_CERTIFICATIONS: unknown[] = [];
+const INITIAL_PROJECTS: unknown[] = [];
+const INITIAL_EDUCATION: unknown[] = [];
+const INITIAL_EXPERIENCES: unknown[] = [];
 
 // Inicializa todos os arquivos criptografados no boot da aplicação se ainda não existirem
 export function initializeEncryptedDatabase(): void {

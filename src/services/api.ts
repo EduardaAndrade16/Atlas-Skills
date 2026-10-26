@@ -13,6 +13,7 @@ import {
   JobMatchAnalysis,
   JobMatchCriterion,
   JobOpportunity,
+  PersonalizedLearningTrack,
   Project,
   SeniorityLevel,
   SkillLevel,
@@ -77,17 +78,17 @@ export const setBackendMode = (mode: 'auto' | 'spring' | 'mock') => {
   localStorage.setItem(STORAGE_KEY_MODE, mode);
 };
 
-// Initial Seed Data for Instant Demonstration
-const DEFAULT_USER: User = {
-  id: 1,
-  name: 'Eduarda Andrade',
-  email: 'eduarda.andrade@atlasskills.com',
-  createdAt: '2026-01-15T10:00:00Z',
+// Empty defaults keep new and simulated accounts free of fabricated profile data.
+const DEFAULT_USER: User = { id: 0, name: '', email: '', createdAt: '' };
+const DEFAULT_PROFILE: UserProfile = {
+  id: 0,
+  userId: 0,
+  primaryArea: '',
+  secondaryAreas: [],
+  careerGoal: '',
 };
 
-const DEFAULT_PROFILE: UserProfile = {
-  id: 1,
-  userId: 1,
+const LEGACY_DEMO_PROFILE = {
   headline: 'Engenheira de Software Full Stack & Arquiteta Cloud',
   bio: 'Desenvolvedora apaixonada por ecossistemas distribuídos, microsserviços em Spring Boot e interfaces responsivas com React. Foco contínuo em boas práticas, escalabilidade e arquiteturas limpas.',
   primaryArea: 'Desenvolvimento Backend & Cloud',
@@ -98,100 +99,15 @@ const DEFAULT_PROFILE: UserProfile = {
   linkedinUrl: 'https://linkedin.com/in/eduarda-andrade',
   githubUrl: 'https://github.com/eduarda-andrade',
   portfolioUrl: 'https://eduarda.dev',
-  updatedAt: new Date().toISOString(),
 };
 
-const DEFAULT_HARD_SKILLS: HardSkill[] = [
-  { id: 1, name: 'Java 17 / Spring Boot 3', category: 'Backend', level: 'AVANCADO', yearsOfExperience: 4 },
-  { id: 2, name: 'TypeScript & React', category: 'Frontend', level: 'AVANCADO', yearsOfExperience: 3 },
-  { id: 3, name: 'MySQL & PostgreSQL', category: 'Banco de Dados', level: 'INTERMEDIARIO', yearsOfExperience: 3 },
-  { id: 4, name: 'Docker & Kubernetes', category: 'DevOps / Cloud', level: 'INTERMEDIARIO', yearsOfExperience: 2 },
-  { id: 5, name: 'REST APIs & JWT Auth', category: 'Arquitetura', level: 'ESPECIALISTA', yearsOfExperience: 4 },
-  { id: 6, name: 'Tailwind CSS', category: 'Frontend', level: 'ESPECIALISTA', yearsOfExperience: 3 },
-];
-
-const DEFAULT_SOFT_SKILLS: SoftSkill[] = [
-  { id: 1, name: 'Comunicação Assertiva', description: 'Capacidade de alinhar expectativas entre times técnicos e de negócios.', level: 'AVANCADO', contextExample: 'Apresentação de arquiteturas e mentoria técnica de pares.' },
-  { id: 2, name: 'Resolução de Problemas Complexos', description: 'Abordagem analítica para debugar gargalos e criar soluções resilientes.', level: 'ESPECIALISTA', contextExample: 'Diagnóstico de concorrência em transações financeiras.' },
-  { id: 3, name: 'Trabalho Colaborativo', description: 'Espírito de equipe, code review empático e facilitação de cerimônias ágeis.', level: 'AVANCADO', contextExample: 'Pair programming e alinhamentos diários em equipes remotas.' },
-  { id: 4, name: 'Adaptabilidade e Aprendizado Rápido', description: 'Agilidade na assimilação de novos frameworks, ferramentas e domínios.', level: 'ESPECIALISTA', contextExample: 'Migração de monólito para microsserviços em poucas sprints.' },
-];
-
-const DEFAULT_COURSES: Course[] = [
-  { id: 1, name: 'Spring Boot 3 & Microsserviços com Docker', institution: 'Alura', workloadHours: 60, status: 'CONCLUIDO', startDate: '2025-02-10', completionDate: '2025-04-15', certificateUrl: 'https://cursos.exemplo.com/cert/sp3-60h' },
-  { id: 2, name: 'Arquitetura Limpa e DDD na Prática', institution: 'Full Cycle', workloadHours: 80, status: 'CONCLUIDO', startDate: '2025-06-01', completionDate: '2025-09-20', certificateUrl: 'https://cursos.exemplo.com/cert/clean-arch-80h' },
-  { id: 3, name: 'React 19, TypeScript e Server Components', institution: 'Rocketseat', workloadHours: 45, status: 'EM_ANDAMENTO', startDate: '2026-01-10' },
-];
-
-const DEFAULT_CERTIFICATIONS: Certification[] = [
-  { id: 1, name: 'AWS Certified Solutions Architect – Associate', issuingOrganization: 'Amazon Web Services (AWS)', issueDate: '2025-05-15', expirationDate: '2028-05-15', credentialId: 'AWS-SAA-839219', credentialUrl: 'https://aws.amazon.com/verification' },
-  { id: 2, name: 'Oracle Certified Professional: Java SE 17 Developer', issuingOrganization: 'Oracle', issueDate: '2024-11-20', credentialId: 'OCP-17-99201', credentialUrl: 'https://catalog-education.oracle.com' },
-];
-
-const DEFAULT_PROJECTS: Project[] = [
-  {
-    id: 1,
-    title: 'Atlas Skills Platform',
-    description: 'Plataforma completa de gestão de competências, perfis profissionais e mapeamento de carreira integrada com Spring Boot e React.',
-    technologies: ['Java 17', 'Spring Boot', 'React', 'TypeScript', 'MySQL', 'JWT', 'Tailwind CSS'],
-    role: 'Tech Lead & Full Stack Developer',
-    repositoryUrl: 'https://github.com/atlas-skills/atlas-platform',
-    liveUrl: 'https://atlas-skills.dev',
-    startDate: '2026-01-01',
-  },
-  {
-    id: 2,
-    title: 'Cloud Event Broker Microservices',
-    description: 'Sistema assíncrono para ingestão e processamento de eventos de alta taxa de transferência com Spring Cloud Stream e RabbitMQ.',
-    technologies: ['Spring Boot', 'RabbitMQ', 'PostgreSQL', 'Docker', 'JUnit 5'],
-    role: 'Backend Architect',
-    repositoryUrl: 'https://github.com/atlas-skills/event-broker',
-    startDate: '2025-08-01',
-    endDate: '2025-12-15',
-  },
-];
-
-const DEFAULT_EDUCATION: Education[] = [
-  {
-    id: 1,
-    institution: 'Universidade de São Paulo (USP)',
-    degree: 'Bacharelado em Ciência da Computação',
-    fieldOfStudy: 'Ciência da Computação & Engenharia de Software',
-    status: 'CONCLUIDO',
-    startDate: '2020-02-01',
-    endDate: '2024-12-15',
-  },
-  {
-    id: 2,
-    institution: 'FIAP',
-    degree: 'Pós-Graduação / Especialização em Cloud Computing & DevOps Architecture',
-    fieldOfStudy: 'Arquitetura Cloud e Sistemas Distribuídos',
-    status: 'EM_ANDAMENTO',
-    startDate: '2025-03-01',
-  },
-];
-
-const DEFAULT_EXPERIENCES: Experience[] = [
-  {
-    id: 1,
-    company: 'Nexus Tech Solutions',
-    position: 'Engenheira de Software Full Stack Pleno',
-    workModel: 'REMOTO',
-    startDate: '2024-03-01',
-    isCurrent: true,
-    activities: 'Desenvolvimento e sustentação de microsserviços em Spring Boot 3; implementação de pipelines CI/CD; modelagem de dados no MySQL e criação de SPAs em React com TypeScript.',
-  },
-  {
-    id: 2,
-    company: 'Innovate Inovação Digital',
-    position: 'Desenvolvedora Backend Jr',
-    workModel: 'HIBRIDO',
-    startDate: '2022-08-01',
-    endDate: '2024-02-28',
-    isCurrent: false,
-    activities: 'Criação de endpoints REST, automação de testes unitários com JUnit 5 e Mockito, integração de sistemas legados e otimização de consultas SQL.',
-  },
-];
+function isLegacyDemoProfile(profile: Partial<UserProfile>): boolean {
+  return Object.entries(LEGACY_DEMO_PROFILE).every(([key, value]) =>
+    key === 'secondaryAreas'
+      ? JSON.stringify(profile.secondaryAreas) === JSON.stringify(value)
+      : profile[key as keyof UserProfile] === value
+  );
+}
 
 // Helper for Mock DB per user in localStorage
 class MockDatabase {
@@ -221,17 +137,7 @@ class MockDatabase {
   // Users storage
   getUsers(): Array<{ user: User; passwordHash: string; profile: UserProfile }> {
     const raw = localStorage.getItem('atlas_users_db');
-    if (!raw) {
-      const initial = [
-        {
-          user: DEFAULT_USER,
-          passwordHash: '123456', // Simulated hash
-          profile: DEFAULT_PROFILE,
-        },
-      ];
-      localStorage.setItem('atlas_users_db', JSON.stringify(initial));
-      return initial;
-    }
+    if (!raw) return [];
     try {
       return JSON.parse(raw);
     } catch {
@@ -248,21 +154,26 @@ class MockDatabase {
     const stored = localStorage.getItem(key);
     if (stored) {
       try {
-        return JSON.parse(stored);
+        const profile = JSON.parse(stored) as UserProfile;
+        if (!isLegacyDemoProfile(profile)) return profile;
+        return { ...DEFAULT_PROFILE, id: userId, userId };
       } catch {
         // fallback
       }
     }
+    const legacyProfile = this.getUsers().find((entry) => entry.user.id === userId)?.profile;
+    if (legacyProfile && isLegacyDemoProfile(legacyProfile)) {
+      return { ...DEFAULT_PROFILE, id: userId, userId };
+    }
     if (userId === DEFAULT_USER.id) {
-      this.saveProfile(userId, DEFAULT_PROFILE);
       return DEFAULT_PROFILE;
     }
     const emptyProfile: UserProfile = {
       id: userId,
       userId,
-      primaryArea: 'Tecnologia da Informação',
+      primaryArea: '',
       secondaryAreas: [],
-      careerGoal: 'Profissional de Tecnologia',
+      careerGoal: '',
       updatedAt: new Date().toISOString(),
     };
     this.saveProfile(userId, emptyProfile);
@@ -279,6 +190,18 @@ class MockDatabase {
 
   // Generic CRUD for user resources
   getList<T>(userId: number, table: string, defaultData: T[] = []): T[] {
+    const storedProfile = localStorage.getItem(`${STORAGE_KEY_DATA_PREFIX}${userId}_profile`);
+    let profile: UserProfile | undefined;
+    if (storedProfile) {
+      try {
+        profile = JSON.parse(storedProfile) as UserProfile;
+      } catch {
+        profile = undefined;
+      }
+    } else {
+      profile = this.getUsers().find((entry) => entry.user.id === userId)?.profile;
+    }
+    if (profile && isLegacyDemoProfile(profile)) return [];
     return this.load<T>(userId, table, userId === 1 ? defaultData : []);
   }
 
@@ -327,6 +250,10 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
   const mode = getBackendMode();
   const token = getToken();
 
+  if (endpoint.startsWith('/ai/') && mode === 'mock') {
+    throw new Error('A geração com Gemini exige o backend ativo e uma GEMINI_API_KEY configurada.');
+  }
+
   if (mode === 'spring' || mode === 'auto') {
     const baseUrl = getApiBaseUrl();
     const headers = new Headers(options.headers || {});
@@ -349,7 +276,7 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
         throw new Error(`Falha ao conectar com o backend Spring Boot (${baseUrl}): ${networkMsg}`);
       }
 
-      if (endpoint === '/ai/gap-analysis') {
+      if (endpoint.startsWith('/ai/')) {
         throw new Error('Não foi possível conectar ao serviço de análise de IA.');
       }
 
@@ -414,8 +341,7 @@ async function executeMockRequest<T>(endpoint: string, options: RequestInit): Pr
       throw new Error('E-mail não cadastrado. Verifique o endereço digitado ou crie uma nova conta.');
     }
     const isValidPassword =
-      match.passwordHash === body.password ||
-      (match.user.id === 1 && (body.password === '123456' || body.password === 'password123'));
+      match.passwordHash === body.password;
     if (!isValidPassword) {
       throw new Error('Senha incorreta. Verifique sua senha e tente novamente.');
     }
@@ -444,11 +370,10 @@ async function executeMockRequest<T>(endpoint: string, options: RequestInit): Pr
     const newProfile: UserProfile = {
       id: newUserId,
       userId: newUserId,
-      headline: 'Profissional em Desenvolvimento',
       bio: '',
-      primaryArea: 'Tecnologia da Informação',
+      primaryArea: '',
       secondaryAreas: [],
-      careerGoal: 'Crescimento Profissional',
+      careerGoal: '',
       updatedAt: new Date().toISOString(),
     };
     users.push({
@@ -498,7 +423,7 @@ async function executeMockRequest<T>(endpoint: string, options: RequestInit): Pr
 
   // HARD SKILLS
   if (endpoint === '/skills/hard' && method === 'GET') {
-    return mockDb.getList<HardSkill>(userId, 'hard_skills', DEFAULT_HARD_SKILLS) as unknown as T;
+    return mockDb.getList<HardSkill>(userId, 'hard_skills', []) as unknown as T;
   }
   if (endpoint === '/skills/hard' && method === 'POST') {
     return mockDb.create<HardSkill>(userId, 'hard_skills', body) as unknown as T;
@@ -515,7 +440,7 @@ async function executeMockRequest<T>(endpoint: string, options: RequestInit): Pr
 
   // SOFT SKILLS
   if (endpoint === '/skills/soft' && method === 'GET') {
-    return mockDb.getList<SoftSkill>(userId, 'soft_skills', DEFAULT_SOFT_SKILLS) as unknown as T;
+    return mockDb.getList<SoftSkill>(userId, 'soft_skills', []) as unknown as T;
   }
   if (endpoint === '/skills/soft' && method === 'POST') {
     return mockDb.create<SoftSkill>(userId, 'soft_skills', body) as unknown as T;
@@ -532,7 +457,7 @@ async function executeMockRequest<T>(endpoint: string, options: RequestInit): Pr
 
   // COURSES
   if (endpoint === '/courses' && method === 'GET') {
-    return mockDb.getList<Course>(userId, 'courses', DEFAULT_COURSES) as unknown as T;
+    return mockDb.getList<Course>(userId, 'courses', []) as unknown as T;
   }
   if (endpoint === '/courses' && method === 'POST') {
     return mockDb.create<Course>(userId, 'courses', body) as unknown as T;
@@ -549,7 +474,7 @@ async function executeMockRequest<T>(endpoint: string, options: RequestInit): Pr
 
   // CERTIFICATIONS
   if (endpoint === '/certifications' && method === 'GET') {
-    return mockDb.getList<Certification>(userId, 'certifications', DEFAULT_CERTIFICATIONS) as unknown as T;
+    return mockDb.getList<Certification>(userId, 'certifications', []) as unknown as T;
   }
   if (endpoint === '/certifications' && method === 'POST') {
     return mockDb.create<Certification>(userId, 'certifications', body) as unknown as T;
@@ -566,7 +491,7 @@ async function executeMockRequest<T>(endpoint: string, options: RequestInit): Pr
 
   // PROJECTS
   if (endpoint === '/projects' && method === 'GET') {
-    return mockDb.getList<Project>(userId, 'projects', DEFAULT_PROJECTS) as unknown as T;
+    return mockDb.getList<Project>(userId, 'projects', []) as unknown as T;
   }
   if (endpoint === '/projects' && method === 'POST') {
     return mockDb.create<Project>(userId, 'projects', body) as unknown as T;
@@ -583,7 +508,7 @@ async function executeMockRequest<T>(endpoint: string, options: RequestInit): Pr
 
   // EDUCATION
   if (endpoint === '/education' && method === 'GET') {
-    return mockDb.getList<Education>(userId, 'education', DEFAULT_EDUCATION) as unknown as T;
+    return mockDb.getList<Education>(userId, 'education', []) as unknown as T;
   }
   if (endpoint === '/education' && method === 'POST') {
     return mockDb.create<Education>(userId, 'education', body) as unknown as T;
@@ -600,7 +525,7 @@ async function executeMockRequest<T>(endpoint: string, options: RequestInit): Pr
 
   // EXPERIENCES
   if (endpoint === '/experiences' && method === 'GET') {
-    return mockDb.getList<Experience>(userId, 'experiences', DEFAULT_EXPERIENCES) as unknown as T;
+    return mockDb.getList<Experience>(userId, 'experiences', []) as unknown as T;
   }
   if (endpoint === '/experiences' && method === 'POST') {
     return mockDb.create<Experience>(userId, 'experiences', body) as unknown as T;
@@ -617,13 +542,13 @@ async function executeMockRequest<T>(endpoint: string, options: RequestInit): Pr
 
   // DASHBOARD SUMMARY
   if (endpoint === '/profile/summary' && method === 'GET') {
-    const hard = mockDb.getList<HardSkill>(userId, 'hard_skills', DEFAULT_HARD_SKILLS);
-    const soft = mockDb.getList<SoftSkill>(userId, 'soft_skills', DEFAULT_SOFT_SKILLS);
-    const courses = mockDb.getList<Course>(userId, 'courses', DEFAULT_COURSES);
-    const certs = mockDb.getList<Certification>(userId, 'certifications', DEFAULT_CERTIFICATIONS);
-    const projs = mockDb.getList<Project>(userId, 'projects', DEFAULT_PROJECTS);
-    const edus = mockDb.getList<Education>(userId, 'education', DEFAULT_EDUCATION);
-    const exps = mockDb.getList<Experience>(userId, 'experiences', DEFAULT_EXPERIENCES);
+    const hard = mockDb.getList<HardSkill>(userId, 'hard_skills', []);
+    const soft = mockDb.getList<SoftSkill>(userId, 'soft_skills', []);
+    const courses = mockDb.getList<Course>(userId, 'courses', []);
+    const certs = mockDb.getList<Certification>(userId, 'certifications', []);
+    const projs = mockDb.getList<Project>(userId, 'projects', []);
+    const edus = mockDb.getList<Education>(userId, 'education', []);
+    const exps = mockDb.getList<Experience>(userId, 'experiences', []);
     const prof = mockDb.getProfile(userId);
 
     // Calculate completeness based on the 8 stages of the Atlas Trail
@@ -665,59 +590,8 @@ async function executeMockRequest<T>(endpoint: string, options: RequestInit): Pr
     return summary as unknown as T;
   }
 
-  if (endpoint === '/ai/gap-analysis' && method === 'POST') {
-    const prof = mockDb.getProfile(userId);
-    const hard = mockDb.getList<HardSkill>(userId, 'hard_skills', DEFAULT_HARD_SKILLS);
-    const primary = prof.primaryArea || 'Tecnologia da Informação';
-    const goal = prof.careerGoal || 'Especialista em Tecnologia';
-
-    const fallbackAnalysis: GapAnalysisResponse = {
-      readinessScore: 78,
-      summary: `Análise estruturada para o objetivo "${goal}" na área de ${primary}. Perfil com ${hard.length} competências técnicas cadastradas demonstrando sólida experiência prática e potencial de crescimento.`,
-      identifiedGaps: [
-        {
-          skill: 'Arquitetura de Microsserviços & Cloud Native',
-          currentLevel: 'INTERMEDIARIO',
-          targetLevel: 'AVANCADO',
-          impact: 'Aprofundamento em sistemas distribuídos de alta concorrência e resiliência.',
-        },
-        {
-          skill: 'CI/CD & Observabilidade em Produção',
-          currentLevel: 'BASICO',
-          targetLevel: 'AVANCADO',
-          impact: 'Automação de entregas contínuas com rastreabilidade e monitoramento em tempo real.',
-        },
-        {
-          skill: 'Segurança em APIs & Zero Trust',
-          currentLevel: 'INTERMEDIARIO',
-          targetLevel: 'ESPECIALISTA',
-          impact: 'Garantia de conformidade com padrões de governança, autenticação e proteção de dados.',
-        },
-      ],
-      recommendedTracks: [
-        {
-          title: 'Trilha 1: Arquitetura Distribuída & Escalabilidade Cloud',
-          description: 'Aprofunde conhecimentos em mensageria assíncrona, orquestração de contêineres e microsserviços.',
-          estimatedHours: 40,
-          steps: [
-            'Modelar serviços desacoplados com padrões Saga e mensageria',
-            'Configurar mensageria orientada a eventos e filas de retry',
-            'Implementar health checks, rate limiting e circuit breakers em APIs',
-          ],
-        },
-        {
-          title: 'Trilha 2: Engenharia de Confiabilidade & CI/CD Automatizado',
-          description: 'Domine pipelines de entrega contínua, infraestrutura como código e telemetria.',
-          estimatedHours: 32,
-          steps: [
-            'Construir pipelines de build, testes automatizados e deploy contínuo',
-            'Instrumentar métricas de aplicação com logs estruturados e alertas',
-            'Praticar deploys estratégicos (Canary e Blue-Green)',
-          ],
-        },
-      ],
-    };
-    return fallbackAnalysis as unknown as T;
+  if (endpoint.startsWith('/ai/')) {
+    throw new Error('Gemini requires a configured backend.');
   }
 
   throw new Error(`Rota simulada não encontrada: ${method} ${endpoint}`);
@@ -754,34 +628,86 @@ export const profileApi = {
 };
 
 export const aiApi = {
-  generateGapAnalysis: () => {
-    const user = getStoredUser() || DEFAULT_USER;
-    const userId = user.id;
-    const profile = mockDb.getProfile(userId);
-    const hardSkills = mockDb.getList<HardSkill>(userId, 'hard_skills', DEFAULT_HARD_SKILLS);
-    const softSkills = mockDb.getList<SoftSkill>(userId, 'soft_skills', DEFAULT_SOFT_SKILLS);
-    const projects = mockDb.getList<Project>(userId, 'projects', DEFAULT_PROJECTS);
-    const certifications = mockDb.getList<Certification>(userId, 'certifications', DEFAULT_CERTIFICATIONS);
-    const experiences = mockDb.getList<Experience>(userId, 'experiences', DEFAULT_EXPERIENCES);
-    const education = mockDb.getList<Education>(userId, 'education', DEFAULT_EDUCATION);
-
-    const snapshot = {
-      user: { id: user.id, name: user.name, email: user.email },
-      profile,
-      hardSkills,
-      softSkills,
-      projects,
-      certifications,
-      experiences,
-      education,
-    };
-
+  generateGapAnalysis: async () => {
+    const snapshot = await getAiProfileSnapshot();
+    const user = getStoredUser();
+    if (!user) throw new Error('Entre na sua conta para gerar a análise.');
     return request<GapAnalysisResponse>('/ai/gap-analysis', {
       method: 'POST',
-      body: JSON.stringify(snapshot),
+      body: JSON.stringify({ userId: user.id, ...snapshot }),
+    });
+  },
+  generateLearningTrack: async () => {
+    const user = getStoredUser();
+    if (!user) throw new Error('Entre na sua conta para gerar uma trilha personalizada.');
+    const [snapshot, modules] = await Promise.all([
+      getAiProfileSnapshot(),
+      trackApi.getModules(),
+    ]);
+    const catalog = Array.from(
+      new Map(
+        modules
+          .flatMap((module) => module.activities.flatMap((activity) => activity.courses || []))
+          .filter((course) => !course.isDemo && course.title.trim())
+          .map((course) => [course.id, course])
+      ).values()
+    );
+    return request<Omit<PersonalizedLearningTrack, 'id' | 'generatedAt'>>('/ai/learning-track', {
+      method: 'POST',
+      body: JSON.stringify({ userId: user.id, ...snapshot, courseCatalog: catalog }),
     });
   },
 };
+
+async function getAiProfileSnapshot() {
+  const [
+    profile,
+    hardSkills,
+    softSkills,
+    courses,
+    certifications,
+    projects,
+    education,
+    experiences,
+  ] = await Promise.all([
+    profileApi.get(),
+    hardSkillApi.getAll(),
+    softSkillApi.getAll(),
+    courseApi.getAll(),
+    certificationApi.getAll(),
+    projectApi.getAll(),
+    educationApi.getAll(),
+    experienceApi.getAll(),
+  ]);
+
+  return {
+    profile: {
+      primaryArea: profile.primaryArea,
+      secondaryAreas: profile.secondaryAreas,
+      careerGoal: profile.careerGoal,
+      learningObjectives: profile.learningObjectives || [],
+    },
+    hardSkills: hardSkills.map(({ name, category, level, yearsOfExperience }) => ({
+      name, category, level, yearsOfExperience,
+    })),
+    softSkills: softSkills.map(({ name, description, level }) => ({ name, description, level })),
+    courses: courses.map(({ name, institution, status, workloadHours }) => ({
+      name, institution, status, workloadHours,
+    })),
+    certifications: certifications.map(({ name, issuingOrganization, issueDate }) => ({
+      name, issuingOrganization, issueDate,
+    })),
+    projects: projects.map(({ title, description, technologies, role }) => ({
+      title, description, technologies, role,
+    })),
+    education: education.map(({ institution, degree, fieldOfStudy, status }) => ({
+      institution, degree, fieldOfStudy, status,
+    })),
+    experiences: experiences.map(({ position, activities, startDate, endDate, isCurrent }) => ({
+      position, activities, startDate, endDate, isCurrent,
+    })),
+  };
+}
 
 export const hardSkillApi = {
   getAll: () => request<HardSkill[]>('/skills/hard'),
@@ -932,6 +858,17 @@ export const systemApi = {
 
 const STORAGE_KEY_MODULES = 'atlas_learning_modules_db';
 const STORAGE_KEY_TRACK_PROGRESS_PREFIX = 'atlas_track_progress_';
+const STORAGE_KEY_PERSONALIZED_TRACKS_PREFIX = 'atlas_personalized_tracks_';
+const LEGACY_DEMO_MODULE_IDS = new Set([
+  'mod-hs-1',
+  'mod-hs-2',
+  'mod-ss-1',
+  'mod-ss-2',
+  'mod-li-1',
+  'mod-li-2',
+  'mod-cv-1',
+  'mod-cv-2',
+]);
 
 const DEFAULT_CATEGORIES: TrackCategory[] = [
   {
@@ -960,334 +897,18 @@ const DEFAULT_CATEGORIES: TrackCategory[] = [
   },
 ];
 
-const DEFAULT_SEED_MODULES: TrackModule[] = [
-  // --- HARD SKILLS ---
-  {
-    id: 'mod-hs-1',
-    categoryKey: 'hard-skills',
-    title: 'Módulo 1: Fundamentos de Cibersegurança & Sistemas',
-    description: 'Conceitos fundamentais de sistemas operacionais, redes e princípios de segurança.',
-    order: 1,
-    activities: [
-      {
-        id: 'act-hs-1',
-        moduleId: 'mod-hs-1',
-        title: 'Sistemas Operacionais & Ambientes Linux',
-        order: 1,
-        whyLearn: 'O domínio de sistemas operacionais e comandos Linux é a base essencial para administrar servidores, rodar contêineres e entender como as aplicações interagem com o hardware e com a rede de forma segura.',
-        whatYouWillLearn: [
-          'Estrutura hierárquica de diretórios e permissões POSIX no Linux',
-          'Gerenciamento de processos, memória e fluxos de entrada/saída (I/O)',
-          'Comandos essenciais de terminal para inspeção e administração de sistemas',
-        ],
-        courses: [
-          {
-            id: 'c-hs-1',
-            title: 'Fundamentos de Linux (Demonstração)',
-            platform: 'Fundação Bradesco - Escola Virtual',
-            url: 'https://www.ev.org.br',
-            description: 'Capacitação introdutória sobre conceitos de sistemas operacionais e terminal Linux.',
-            isFree: true,
-            isDemo: true,
-            estimatedDuration: '20h',
-          },
-          {
-            id: 'c-hs-2',
-            title: 'Formação Linux & DevOps (Demonstração)',
-            platform: 'Alura',
-            url: 'https://www.alura.com.br',
-            description: 'Trilha completa com servidores, scripts bash, permissões e automação de rotinas.',
-            isFree: false,
-            isDemo: true,
-            estimatedDuration: '45h',
-          },
-        ],
-      },
-      {
-        id: 'act-hs-2',
-        moduleId: 'mod-hs-1',
-        title: 'Redes de Computadores & Protocolos de Comunicação',
-        order: 2,
-        whyLearn: 'Entender protocolos como TCP/IP, DNS, HTTP/S e SSH permite projetar microsserviços eficientes, diagnosticar falhas de rede e garantir a integridade do tráfego.',
-        whatYouWillLearn: [
-          'Camadas do modelo OSI e pilha TCP/IP aplicadas a sistemas reais',
-          'Roteamento, sub-redes e resolução de nomes (DNS)',
-          'Análise de pacotes e diagnóstico de conectividade com ferramentas de rede',
-        ],
-        courses: [
-          {
-            id: 'c-hs-3',
-            title: 'Introdução a Redes de Computadores (Demonstração)',
-            platform: 'Coursera / Google',
-            url: 'https://www.coursera.org',
-            description: 'Curso introdutório gratuito sobre como a internet e as redes corporativas funcionam.',
-            isFree: true,
-            isDemo: true,
-            estimatedDuration: '25h',
-          },
-        ],
-      },
-      {
-        id: 'act-hs-3',
-        moduleId: 'mod-hs-1',
-        title: 'Fundamentos de Segurança da Informação & Tríade CIA',
-        order: 3,
-        whyLearn: 'A segurança deve ser pensada desde o design arquitetural (Security by Design), protegendo dados sensíveis e prevenindo brechas de conformidade legal.',
-        whatYouWillLearn: [
-          'Tríade CIA: Confidencialidade, Integridade e Disponibilidade',
-          'Criptografia simétrica, assimétrica e funções de hash (SHA, bcrypt)',
-          'Políticas de privilégio mínimo e autenticação multifator (MFA)',
-        ],
-        courses: [],
-      },
-    ],
-  },
-  {
-    id: 'mod-hs-2',
-    categoryKey: 'hard-skills',
-    title: 'Módulo 2: Segurança de Aplicações & Web',
-    description: 'Mitigação de vulnerabilidades comuns, autenticação e proteção de APIs.',
-    order: 2,
-    activities: [
-      {
-        id: 'act-hs-4',
-        moduleId: 'mod-hs-2',
-        title: 'OWASP Top 10 e Vulnerabilidades Comuns',
-        order: 1,
-        whyLearn: 'Conhecer e mitigar injeção de código (SQLi), cross-site scripting (XSS) e falhas de autenticação é requisito indispensável para qualquer desenvolvedor de software moderno.',
-        whatYouWillLearn: [
-          'Principais vetores de ataque mapeados pelo projeto global OWASP',
-          'Validação e sanitização estrita de entradas em formulários e APIs',
-          'Implementação de cabeçalhos de segurança HTTP (CSP, HSTS, X-Frame-Options)',
-        ],
-        courses: [],
-      },
-      {
-        id: 'act-hs-5',
-        moduleId: 'mod-hs-2',
-        title: 'Autenticação Segura & Gestão de Tokens (JWT/OAuth2)',
-        order: 2,
-        whyLearn: 'A correta manipulação de identidades e sessões é o alicerce para APIs resilientes em ambientes distribuídos.',
-        whatYouWillLearn: [
-          'Fluxos de autorização OAuth 2.0 e OpenID Connect',
-          'Boas práticas de assinatura, tempo de expiração e refresh tokens',
-          'Prevenção a ataques CSRF e proteção de credenciais em repouso',
-        ],
-        courses: [],
-      },
-    ],
-  },
+function readStoredModules(): TrackModule[] {
+  const stored = localStorage.getItem(STORAGE_KEY_MODULES);
+  if (!stored) return [];
+  const parsed: unknown = JSON.parse(stored);
+  if (!Array.isArray(parsed)) throw new Error('O catálogo de trilhas salvo está inválido.');
+  return parsed as TrackModule[];
+}
 
-  // --- SOFT SKILLS ---
-  {
-    id: 'mod-ss-1',
-    categoryKey: 'soft-skills',
-    title: 'Módulo 1: Comunicação & Alinhamento Profissional',
-    description: 'Técnicas de clareza, alinhamento de expectativas e negociação.',
-    order: 1,
-    activities: [
-      {
-        id: 'act-ss-1',
-        moduleId: 'mod-ss-1',
-        title: 'Comunicação Assertiva no Ambiente Técnico',
-        order: 1,
-        whyLearn: 'A capacidade de traduzir complexidade técnica para diferentes públicos e stakeholders acelera projetos e evita retrabalhos custosos.',
-        whatYouWillLearn: [
-          'Escuta ativa e alinhamento de expectativas entre times',
-          'Estruturação clara de mensagens e apresentações técnicas',
-          'Técnicas de comunicação não-violenta (CNV) no cotidiano de squads',
-        ],
-        courses: [
-          {
-            id: 'c-ss-1',
-            title: 'Comunicação Assertiva no Trabalho (Demonstração)',
-            platform: 'Fundação Bradesco - Escola Virtual',
-            url: 'https://www.ev.org.br',
-            description: 'Capacitação prática para expressar ideias e defender pontos de vista com clareza e respeito.',
-            isFree: true,
-            isDemo: true,
-            estimatedDuration: '10h',
-          },
-        ],
-      },
-      {
-        id: 'act-ss-2',
-        moduleId: 'mod-ss-1',
-        title: 'Apresentação de Soluções e Negociação com Stakeholders',
-        order: 2,
-        whyLearn: 'Defender uma escolha de arquitetura ou prazo exige argumentação baseada em valor de negócio e mitigação de riscos.',
-        whatYouWillLearn: [
-          'Construção de business cases técnicos convincentes',
-          'Princípios de negociação ganha-ganha para priorização de backlog',
-          'Manejo construtivo de resistências e objeções',
-        ],
-        courses: [],
-      },
-    ],
-  },
-  {
-    id: 'mod-ss-2',
-    categoryKey: 'soft-skills',
-    title: 'Módulo 2: Resolução de Problemas & Tomada de Decisão',
-    description: 'Diagnóstico analítico, postura sob pressão e aprendizado com falhas.',
-    order: 2,
-    activities: [
-      {
-        id: 'act-ss-3',
-        moduleId: 'mod-ss-2',
-        title: 'Diagnóstico Estruturado e Postura Sob Pressão',
-        order: 1,
-        whyLearn: 'Durante incidentes em produção ou prazos desafiadores, manter o controle emocional e seguir métodos estruturados salva entregas e preserva o clima do time.',
-        whatYouWillLearn: [
-          'Técnica dos 5 Porquês e Diagrama de Ishikawa na análise de causas raiz',
-          'Priorização rápida com matriz de gravidade e urgência',
-          'Cultura de Blameless Post-Mortem (análise de falhas sem culpados)',
-        ],
-        courses: [],
-      },
-    ],
-  },
-
-  // --- LINKEDIN ---
-  {
-    id: 'mod-li-1',
-    categoryKey: 'linkedin',
-    title: 'Módulo 1: Estruturação & Posicionamento do Perfil',
-    description: 'Otimização dos campos essenciais do perfil para atrair recrutadores.',
-    order: 1,
-    activities: [
-      {
-        id: 'act-li-1',
-        moduleId: 'mod-li-1',
-        title: 'Título Profissional de Alto Impacto',
-        order: 1,
-        whyLearn: 'O título é o primeiro elemento visto pelos recrutadores e pelo algoritmo do LinkedIn. Um título genérico diminui drasticamente sua visibilidade em buscas.',
-        whatYouWillLearn: [
-          'Fórmula de alto impacto: [Cargo Atual/Alvo] | [Especialidades Técnicas] | [Proposta de Valor]',
-          'Eliminação de clichês e termos vagos que prejudicam o ranking',
-          'Mapeamento de palavras-chave mais buscadas por Tech Recruiters',
-        ],
-        courses: [
-          {
-            id: 'c-li-1',
-            title: 'Otimização de Perfil no LinkedIn (Demonstração)',
-            platform: 'LinkedIn Learning',
-            url: 'https://www.linkedin.com/learning',
-            description: 'Orientações práticas para destacar suas competências e experiências na rede profissional.',
-            isFree: false,
-            isDemo: true,
-            estimatedDuration: '4h',
-          },
-        ],
-      },
-      {
-        id: 'act-li-2',
-        moduleId: 'mod-li-1',
-        title: 'Seção Sobre: Storytelling e Trajetória Profissional',
-        order: 2,
-        whyLearn: 'O resumo profissional humaniza sua experiência, conectando seu histórico com suas aspirações e diferenciais competitivos.',
-        whatYouWillLearn: [
-          'Estrutura em 3 partes: Quem sou, o que domino e onde desejo atuar',
-          'Como incluir conquistas mensuráveis e tecnologias de domínio',
-          'Chamada para ação clara com dados de contato e portfólio',
-        ],
-        courses: [],
-      },
-    ],
-  },
-  {
-    id: 'mod-li-2',
-    categoryKey: 'linkedin',
-    title: 'Módulo 2: Validação Social, Portfólio & Networking',
-    description: 'Exposição de realizações e engajamento estratégico na rede.',
-    order: 2,
-    activities: [
-      {
-        id: 'act-li-3',
-        moduleId: 'mod-li-2',
-        title: 'Destaque de Projetos & Solicitação de Recomendações',
-        order: 1,
-        whyLearn: 'Recomendações de pares e líderes e links diretos para projetos reais constroem prova social imediata.',
-        whatYouWillLearn: [
-          'Como selecionar e configurar a seção de Destaques',
-          'Como solicitar recomendações estratégicas com mensagem personalizada',
-          'Interação profissional e comentários construtivos em postagens de referência',
-        ],
-        courses: [],
-      },
-    ],
-  },
-
-  // --- CURRÍCULO ---
-  {
-    id: 'mod-cv-1',
-    categoryKey: 'curriculo',
-    title: 'Módulo 1: Arquitetura & Compatibilidade com ATS',
-    description: 'Layouts limpos, hierarquia visual e legibilidade para robôs e recrutadores.',
-    order: 1,
-    activities: [
-      {
-        id: 'act-cv-1',
-        moduleId: 'mod-cv-1',
-        title: 'Estruturação Ideal para Sistemas ATS (Robôs de Triagem)',
-        order: 1,
-        whyLearn: 'Mais de 75% dos currículos em médias e grandes empresas passam por triagem automatizada (ATS). Um formato inadequado descarta o candidato antes mesmo de um recrutador humano avaliar.',
-        whatYouWillLearn: [
-          'Formatos seguros (PDF legível vs DOCX) e fontes padronizadas',
-          'Hierarquia clara de cabeçalhos sem tabelas ou colunas quebradas',
-          'Identificação e incorporação de palavras-chave obrigatórias da vaga',
-        ],
-        courses: [
-          {
-            id: 'c-cv-1',
-            title: 'Como Criar um Currículo Vencedor (Demonstração)',
-            platform: 'Fundação Estudar - Na Prática',
-            url: 'https://www.napratica.org.br',
-            description: 'Guia passo a passo para estruturar um currículo profissional de impacto.',
-            isFree: true,
-            isDemo: true,
-            estimatedDuration: '5h',
-          },
-        ],
-      },
-      {
-        id: 'act-cv-2',
-        moduleId: 'mod-cv-1',
-        title: 'Resumo Profissional Inicial de Alto Impacto',
-        order: 2,
-        whyLearn: 'Recrutadores gastam em média 6 a 10 segundos na primeira leitura. Um resumo inicial objetivo define se o documento será lido na íntegra.',
-        whatYouWillLearn: [
-          'Síntese em 3 a 4 linhas destacando senioridade e tecnologias centrais',
-          'Como evidenciar os maiores sucessos logo no topo do currículo',
-          'Adaptação do resumo conforme o foco da oportunidade',
-        ],
-        courses: [],
-      },
-    ],
-  },
-  {
-    id: 'mod-cv-2',
-    categoryKey: 'curriculo',
-    title: 'Módulo 2: Descrição de Experiências & Resultados Quantificados',
-    description: 'Transformação de listas de tarefas em conquistas demonstráveis.',
-    order: 2,
-    activities: [
-      {
-        id: 'act-cv-3',
-        moduleId: 'mod-cv-2',
-        title: 'Metodologia STAR e Resultados com Métricas',
-        order: 1,
-        whyLearn: 'Apenas listar atribuições não comprova valor. Demonstrar contexto, ação e impacto quantificado diferencia seu perfil dos concorrentes.',
-        whatYouWillLearn: [
-          'Fórmula de impacto: [Verbo de ação] + [Tecnologia/Contexto] + [Impacto Mensurável]',
-          'Exemplos de métricas: redução de tempo de resposta, aumento de conversão, estabilidade de pipeline',
-          'Revisão minuciosa contra ambiguidades e termos vagos',
-        ],
-        courses: [],
-      },
-    ],
-  },
-];
+function saveModules(modules: TrackModule[]): void {
+  const legacyDemos = readStoredModules().filter((module) => LEGACY_DEMO_MODULE_IDS.has(module.id));
+  localStorage.setItem(STORAGE_KEY_MODULES, JSON.stringify([...legacyDemos, ...modules]));
+}
 
 export const trackApi = {
   getCategories: (): TrackCategory[] => {
@@ -1295,22 +916,24 @@ export const trackApi = {
   },
 
   getModules: async (categoryKey?: TrackCategoryKey): Promise<TrackModule[]> => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY_MODULES);
-      let modules: TrackModule[] = [];
-      if (!stored) {
-        modules = DEFAULT_SEED_MODULES;
-        localStorage.setItem(STORAGE_KEY_MODULES, JSON.stringify(modules));
-      } else {
-        modules = JSON.parse(stored);
-      }
-      if (categoryKey) {
-        return modules.filter((m) => m.categoryKey === categoryKey);
-      }
-      return modules;
-    } catch {
-      return DEFAULT_SEED_MODULES;
-    }
+    const modules = readStoredModules().filter((module) => !LEGACY_DEMO_MODULE_IDS.has(module.id));
+    return categoryKey ? modules.filter((module) => module.categoryKey === categoryKey) : modules;
+  },
+
+  getPersonalizedTracks: (userId: number): PersonalizedLearningTrack[] => {
+    const stored = localStorage.getItem(`${STORAGE_KEY_PERSONALIZED_TRACKS_PREFIX}${userId}`);
+    if (!stored) return [];
+    const parsed: unknown = JSON.parse(stored);
+    if (!Array.isArray(parsed)) throw new Error('O histórico de trilhas personalizadas está inválido.');
+    return parsed as PersonalizedLearningTrack[];
+  },
+
+  savePersonalizedTrack: (userId: number, track: PersonalizedLearningTrack): void => {
+    const tracks = trackApi.getPersonalizedTracks(userId);
+    localStorage.setItem(
+      `${STORAGE_KEY_PERSONALIZED_TRACKS_PREFIX}${userId}`,
+      JSON.stringify([...tracks, track])
+    );
   },
 
   addModule: async (categoryKey: TrackCategoryKey, data: { title: string; description?: string }): Promise<TrackModule> => {
@@ -1325,7 +948,7 @@ export const trackApi = {
       activities: [],
     };
     const updated = [...modules, newModule];
-    localStorage.setItem(STORAGE_KEY_MODULES, JSON.stringify(updated));
+    saveModules(updated);
     return newModule;
   },
 
@@ -1335,14 +958,14 @@ export const trackApi = {
     if (idx === -1) throw new Error('Módulo não encontrado.');
     const updated = { ...modules[idx], ...data };
     modules[idx] = updated;
-    localStorage.setItem(STORAGE_KEY_MODULES, JSON.stringify(modules));
+    saveModules(modules);
     return updated;
   },
 
   deleteModule: async (moduleId: string): Promise<boolean> => {
     const modules = await trackApi.getModules();
     const filtered = modules.filter((m) => m.id !== moduleId);
-    localStorage.setItem(STORAGE_KEY_MODULES, JSON.stringify(filtered));
+    saveModules(filtered);
     return true;
   },
 
@@ -1363,13 +986,13 @@ export const trackApi = {
       moduleId,
       title: data.title,
       order: (modules[mIdx].activities || []).length + 1,
-      whyLearn: data.whyLearn || 'Conteúdo essencial para fundamentar sua prática profissional.',
-      whatYouWillLearn: data.whatYouWillLearn || ['Conceitos fundamentais e aplicações práticas.'],
+      whyLearn: data.whyLearn || '',
+      whatYouWillLearn: data.whatYouWillLearn || [],
       courses: [],
     };
 
     modules[mIdx].activities = [...(modules[mIdx].activities || []), newActivity];
-    localStorage.setItem(STORAGE_KEY_MODULES, JSON.stringify(modules));
+    saveModules(modules);
     return newActivity;
   },
 
@@ -1385,7 +1008,7 @@ export const trackApi = {
       }
     }
     if (!foundActivity) throw new Error('Atividade não encontrada.');
-    localStorage.setItem(STORAGE_KEY_MODULES, JSON.stringify(modules));
+    saveModules(modules);
     return foundActivity;
   },
 
@@ -1396,7 +1019,7 @@ export const trackApi = {
         mod.activities = mod.activities.filter((a) => a.id !== activityId);
       }
     }
-    localStorage.setItem(STORAGE_KEY_MODULES, JSON.stringify(modules));
+    saveModules(modules);
     return true;
   },
 
@@ -1423,7 +1046,7 @@ export const trackApi = {
     }
 
     if (!updated) throw new Error('Atividade não encontrada para associar o curso.');
-    localStorage.setItem(STORAGE_KEY_MODULES, JSON.stringify(modules));
+    saveModules(modules);
     return newCourse;
   },
 
@@ -1437,7 +1060,7 @@ export const trackApi = {
         }
       }
     }
-    localStorage.setItem(STORAGE_KEY_MODULES, JSON.stringify(modules));
+    saveModules(modules);
     return true;
   },
 

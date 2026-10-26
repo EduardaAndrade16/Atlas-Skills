@@ -18,6 +18,7 @@ export interface UserProfile {
   primaryArea: string;
   secondaryAreas: string[];
   careerGoal: string;
+  learningObjectives?: string[];
   phone?: string;
   location?: string;
   linkedinUrl?: string;
@@ -148,11 +149,14 @@ export interface CourseMaterial {
   id: string;
   title: string;
   platform: string;
-  url: string;
+  url?: string;
   description: string;
   isFree: boolean;
   estimatedDuration?: string;
   isDemo?: boolean;
+  price?: number;
+  level?: string;
+  modality?: string;
 }
 
 export interface TrackActivity {
@@ -172,6 +176,19 @@ export interface TrackModule {
   description?: string;
   order: number;
   activities: TrackActivity[];
+  isAiGenerated?: boolean;
+  generatedAt?: string;
+  goal?: string;
+  competencies?: string[];
+  estimatedHours?: number;
+}
+
+export interface PersonalizedLearningTrack {
+  id: string;
+  generatedAt: string;
+  goal: string;
+  competencies: string[];
+  modules: TrackModule[];
 }
 
 export interface TrackCategory {

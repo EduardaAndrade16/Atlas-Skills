@@ -23,9 +23,10 @@ import {
   GraduationCap,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { trackApi } from '../services/api';
+import { aiApi, trackApi } from '../services/api';
 import {
   CourseMaterial,
+  PersonalizedLearningTrack,
   TrackActivity,
   TrackCategory,
   TrackCategoryKey,
@@ -34,7 +35,7 @@ import {
 
 export const CoursesAndTracksView: React.FC = () => {
   const { user } = useAuth();
-  const userId = user?.id || 1;
+  const userId = user?.id || 0;
 
   // View Mode: 'roadmap' (compact 4-step home) | 'category' (modules & activities)
   const [currentView, setCurrentView] = useState<'roadmap' | 'category'>('roadmap');
@@ -46,6 +47,9 @@ export const CoursesAndTracksView: React.FC = () => {
   const [modules, setModules] = useState<TrackModule[]>([]);
   const [expandedModules, setExpandedModules] = useState<Record<string, boolean>>({});
   const [progressMap, setProgressMap] = useState<Record<string, boolean>>({});
+  const [personalizedTracks, setPersonalizedTracks] = useState<PersonalizedLearningTrack[]>([]);
+  const [isGeneratingTrack, setIsGeneratingTrack] = useState(false);
+  const [generationError, setGenerationError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   // Active Selected Activity Detail View
@@ -73,6 +77,9 @@ export const CoursesAndTracksView: React.FC = () => {
   const [courseDesc, setCourseDesc] = useState('');
   const [courseIsFree, setCourseIsFree] = useState(true);
   const [courseDuration, setCourseDuration] = useState('');
+  const [courseLevel, setCourseLevel] = useState('');
+  const [courseModality, setCourseModality] = useState('');
+  const [coursePrice, setCoursePrice] = useState('');
 
   // Toast feedback
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -88,7 +95,10 @@ export const CoursesAndTracksView: React.FC = () => {
     try {
       const cats = trackApi.getCategories();
       setCategories(cats);
-      const allMods = await trackApi.getModules();
+      const adminModules = await trackApi.getModules();
+      const savedTracks = trackApi.getPersonalizedTracks(userId);
+      setPersonalizedTracks(savedTracks);
+      const allMods = [...adminModules, ...savedTracks.flatMap((track) => track.modules)];
       setAllModules(allMods);
 
       const userProg = trackApi.getUserProgress(userId);
@@ -111,7 +121,7 @@ export const CoursesAndTracksView: React.FC = () => {
 
   useEffect(() => {
     loadData();
-  }, [selectedCategoryKey]);
+  }, [selectedCategoryKey, userId]);
 
   // Navigate to category screen
   const handleOpenCategory = (catKey: TrackCategoryKey) => {
@@ -143,6 +153,55 @@ export const CoursesAndTracksView: React.FC = () => {
     showToast(isNowDone ? 'Atividade concluída!' : 'Atividade desmarcada.');
   };
 
+  const handleGenerateTrack = async () => {
+    setIsGeneratingTrack(true);
+    setGenerationError(null);
+    try {
+      if (!user) throw new Error('Entre na sua conta para gerar uma trilha personalizada.');
+      const draft = await aiApi.generateLearningTrack();
+      const generatedAt = new Date().toISOString();
+      const trackId = `gemini-${Date.now()}`;
+      const track: PersonalizedLearningTrack = {
+        id: trackId,
+        generatedAt,
+        goal: draft.goal,
+        competencies: draft.competencies,
+        modules: draft.modules.map((module, moduleIndex) => {
+          const moduleId = `${trackId}-module-${moduleIndex + 1}`;
+          return {
+            ...module,
+            id: moduleId,
+            isAiGenerated: true,
+            generatedAt,
+            goal: draft.goal,
+            competencies: draft.competencies,
+            activities: module.activities.map((activity, activityIndex) => ({
+              ...activity,
+              id: `${trackId}-activity-${moduleIndex + 1}-${activityIndex + 1}`,
+              moduleId,
+            })),
+          };
+        }),
+      };
+      trackApi.savePersonalizedTrack(user.id, track);
+      const savedTracks = [...personalizedTracks, track];
+      const adminModules = await trackApi.getModules();
+      const nextModules = [...adminModules, ...savedTracks.flatMap((saved) => saved.modules)];
+      setPersonalizedTracks(savedTracks);
+      setAllModules(nextModules);
+      const firstCategory = track.modules[0]?.categoryKey || selectedCategoryKey;
+      setSelectedCategoryKey(firstCategory);
+      setModules(nextModules.filter((module) => module.categoryKey === firstCategory));
+      setExpandedModules({ [track.modules[0].id]: true });
+      setCurrentView('category');
+      setSelectedActivity(null);
+    } catch (err) {
+      setGenerationError(err instanceof Error ? err.message : 'Não foi possível gerar a trilha.');
+    } finally {
+      setIsGeneratingTrack(false);
+    }
+  };
+
   // Stats helper for any category key
   const getCategoryProgress = (catKey: TrackCategoryKey) => {
     const catMods = allModules.filter((m) => m.categoryKey === catKey);
@@ -164,6 +223,7 @@ export const CoursesAndTracksView: React.FC = () => {
 
   // Current category stats
   const currentCategory = categories.find((c) => c.key === selectedCategoryKey);
+  const latestPersonalizedTrack = personalizedTracks[personalizedTracks.length - 1];
   const currentCategoryStats = useMemo(() => {
     return getCategoryProgress(selectedCategoryKey);
   }, [allModules, selectedCategoryKey, progressMap]);
@@ -230,14 +290,14 @@ export const CoursesAndTracksView: React.FC = () => {
       await trackApi.updateActivity(editingActivity.id, {
         title: actTitle.trim(),
         whyLearn: actWhy.trim(),
-        whatYouWillLearn: items.length > 0 ? items : ['Conteúdo prático para aplicação real.'],
+        whatYouWillLearn: items,
       });
       showToast('Atividade atualizada!');
     } else if (targetModuleId) {
       await trackApi.addActivity(targetModuleId, {
         title: actTitle.trim(),
         whyLearn: actWhy.trim(),
-        whatYouWillLearn: items.length > 0 ? items : ['Conteúdo prático para aplicação real.'],
+        whatYouWillLearn: items,
       });
       showToast('Nova atividade adicionada!');
     }
@@ -265,10 +325,13 @@ export const CoursesAndTracksView: React.FC = () => {
     await trackApi.addCourse(targetActivityId, {
       title: courseTitle.trim(),
       platform: coursePlatform.trim(),
-      url: courseUrl.trim() || 'https://www.google.com',
-      description: courseDesc.trim() || 'Material recomendado para aprofundamento na atividade.',
+      url: courseUrl.trim(),
+      description: courseDesc.trim(),
       isFree: courseIsFree,
-      estimatedDuration: courseDuration.trim() || 'Sob demanda',
+      estimatedDuration: courseDuration.trim() || undefined,
+      level: courseLevel.trim() || undefined,
+      modality: courseModality.trim() || undefined,
+      price: coursePrice ? Number(coursePrice) : undefined,
       isDemo: false,
     });
 
@@ -279,6 +342,9 @@ export const CoursesAndTracksView: React.FC = () => {
     setCourseUrl('');
     setCourseDesc('');
     setCourseDuration('');
+    setCourseLevel('');
+    setCourseModality('');
+    setCoursePrice('');
     await loadData();
 
     // Refresh selected activity if open
@@ -340,6 +406,58 @@ export const CoursesAndTracksView: React.FC = () => {
               </span>
             </button>
           </div>
+
+          <section className="rounded-2xl border border-[#2D2D40] bg-[#222230] p-5 sm:p-6 space-y-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div className="space-y-1">
+                <div className="inline-flex items-center gap-2 text-xs font-semibold text-[#BC9EFD]">
+                  <Sparkles className="h-4 w-4" />
+                  Gemini · trilha personalizada
+                </div>
+                <h2 className="text-lg font-bold text-[#F5F4F8]">Aprenda em direção ao seu objetivo</h2>
+                <p className="max-w-2xl text-xs leading-relaxed text-[#A7A5B4]">
+                  A IA usa seu perfil, competências e histórico cadastrados, além dos materiais reais do catálogo.
+                  Dados de contato e links pessoais não são enviados.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={handleGenerateTrack}
+                disabled={isGeneratingTrack || !user}
+                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-[#8B6BD9] px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-[#9D80E6] disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isGeneratingTrack
+                  ? <><Sparkles className="h-4 w-4 animate-pulse" />Gerando trilha...</>
+                  : <><Sparkles className="h-4 w-4" />{latestPersonalizedTrack ? 'Gerar novamente' : 'Gerar minha trilha'}</>}
+              </button>
+            </div>
+            {generationError && (
+              <div role="alert" className="rounded-xl border border-rose-800/70 bg-rose-950/30 p-3 text-xs text-rose-200">
+                {generationError}
+              </div>
+            )}
+            {latestPersonalizedTrack ? (
+              <div className="rounded-xl border border-[#2D2D40] bg-[#1A1A24] p-4">
+                <p className="text-[10px] font-semibold uppercase tracking-wide text-[#A7A5B4]">
+                  Última trilha · {new Date(latestPersonalizedTrack.generatedAt).toLocaleDateString('pt-BR')}
+                </p>
+                <p className="mt-1 text-sm font-semibold text-[#F5F4F8]">{latestPersonalizedTrack.goal}</p>
+                {latestPersonalizedTrack.competencies.length > 0 && (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {latestPersonalizedTrack.competencies.map((competency) => (
+                      <span key={competency} className="rounded-full border border-[#BC9EFD]/30 bg-[#8B6BD9]/10 px-2.5 py-1 text-[10px] text-[#D4CDE6]">
+                        {competency}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <p className="rounded-xl border border-[#2D2D40] bg-[#1A1A24] p-4 text-xs text-[#A7A5B4]">
+                Nenhuma trilha personalizada foi gerada. Atualize seu objetivo e competências no perfil e gere uma nova trilha.
+              </p>
+            )}
+          </section>
 
           {/* Compact 4-Step Category Roadmap */}
           <div className="pt-2">
@@ -507,6 +625,16 @@ export const CoursesAndTracksView: React.FC = () => {
             </div>
           </div>
 
+          {latestPersonalizedTrack && modules.some((module) => module.isAiGenerated) && (
+            <section className="rounded-xl border border-[#BC9EFD]/20 bg-[#8B6BD9]/10 p-4">
+              <p className="text-[10px] font-semibold uppercase tracking-wide text-[#BC9EFD]">Objetivo da trilha Gemini</p>
+              <p className="mt-1 text-sm font-semibold text-[#F5F4F8]">{latestPersonalizedTrack.goal}</p>
+              <p className="mt-1 text-[11px] text-[#A7A5B4]">
+                As trilhas anteriores e seu progresso foram mantidos.
+              </p>
+            </section>
+          )}
+
           {/* Modules Accordion List */}
           <div className="space-y-3">
             {loading ? (
@@ -518,10 +646,10 @@ export const CoursesAndTracksView: React.FC = () => {
               <div className="rounded-2xl bg-[#1E1E2A] border border-[#2D2D40] p-10 text-center space-y-2">
                 <BookOpen className="w-8 h-8 text-[#8B6BD9] mx-auto opacity-60" />
                 <h4 className="text-sm font-semibold text-[#F5F4F8]">
-                  Nenhum módulo cadastrado nesta categoria
+                  Nenhum conteúdo disponível nesta categoria
                 </h4>
                 <p className="text-xs text-[#A7A5B4] max-w-sm mx-auto">
-                  Utilize o botão de administração para adicionar módulos e atividades estruturadas.
+                  Gere uma trilha personalizada ou cadastre conteúdos reais no catálogo.
                 </p>
                 {adminMode && (
                   <button
@@ -577,7 +705,7 @@ export const CoursesAndTracksView: React.FC = () => {
                           {completedCount}/{acts.length}
                         </span>
 
-                        {adminMode && (
+                        {adminMode && !module.isAiGenerated && (
                           <div
                             className="flex items-center gap-1 mr-1"
                             onClick={(e) => e.stopPropagation()}
@@ -702,6 +830,9 @@ export const CoursesAndTracksView: React.FC = () => {
                                           setCourseDesc('');
                                           setCourseIsFree(true);
                                           setCourseDuration('');
+                                          setCourseLevel('');
+                                          setCourseModality('');
+                                          setCoursePrice('');
                                           setCourseModalOpen(true);
                                         }}
                                         className="text-[10px] px-1.5 py-0.5 rounded bg-[#1A1A24] text-[#BC9EFD] border border-[#2D2D40]"
@@ -880,7 +1011,7 @@ export const CoursesAndTracksView: React.FC = () => {
                   if (freeList.length === 0) {
                     return (
                       <div className="p-4 rounded-lg bg-[#1A1A24] border border-[#2D2D40] text-center text-xs text-[#A7A5B4]">
-                        Novos conteúdos serão disponibilizados em breve.
+                        Não foi encontrado um recurso correspondente no catálogo cadastrado.
                       </div>
                     );
                   }
@@ -902,6 +1033,12 @@ export const CoursesAndTracksView: React.FC = () => {
                             <p className="text-xs text-[#A7A5B4] line-clamp-2 leading-relaxed">
                               {course.description}
                             </p>
+                            {(course.level || course.modality || typeof course.price === 'number') && (
+                              <p className="text-[10px] text-[#767487]">
+                                {[course.level, course.modality, typeof course.price === 'number' ? `R$ ${course.price.toFixed(2)}` : '']
+                                  .filter(Boolean).join(' · ')}
+                              </p>
+                            )}
                           </div>
 
                           <div className="pt-2 border-t border-[#2D2D40] flex items-center justify-between text-xs">
@@ -913,7 +1050,7 @@ export const CoursesAndTracksView: React.FC = () => {
                             )}
 
                             <div className="flex items-center gap-2 ml-auto">
-                              {adminMode && (
+                              {adminMode && !selectedActivity.id.startsWith('gemini-') && (
                                 <button
                                   onClick={() =>
                                     handleDeleteCourse(selectedActivity.id, course.id)
@@ -925,15 +1062,19 @@ export const CoursesAndTracksView: React.FC = () => {
                                 </button>
                               )}
 
-                              <a
-                                href={course.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-400 hover:text-emerald-300"
-                              >
-                                <span>Acessar</span>
-                                <ExternalLink className="w-3 h-3" />
-                              </a>
+                              {course.url ? (
+                                <a
+                                  href={course.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-400 hover:text-emerald-300"
+                                >
+                                  <span>Acessar</span>
+                                  <ExternalLink className="w-3 h-3" />
+                                </a>
+                              ) : (
+                                <span className="text-xs text-[#767487]">Link não informado</span>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -960,7 +1101,7 @@ export const CoursesAndTracksView: React.FC = () => {
                   if (paidList.length === 0) {
                     return (
                       <div className="p-4 rounded-lg bg-[#1A1A24] border border-[#2D2D40] text-center text-xs text-[#A7A5B4]">
-                        Novos conteúdos serão disponibilizados em breve.
+                        Não foi encontrado um recurso correspondente no catálogo cadastrado.
                       </div>
                     );
                   }
@@ -982,6 +1123,12 @@ export const CoursesAndTracksView: React.FC = () => {
                             <p className="text-xs text-[#A7A5B4] line-clamp-2 leading-relaxed">
                               {course.description}
                             </p>
+                            {(course.level || course.modality || typeof course.price === 'number') && (
+                              <p className="text-[10px] text-[#767487]">
+                                {[course.level, course.modality, typeof course.price === 'number' ? `R$ ${course.price.toFixed(2)}` : '']
+                                  .filter(Boolean).join(' · ')}
+                              </p>
+                            )}
                           </div>
 
                           <div className="pt-2 border-t border-[#2D2D40] flex items-center justify-between text-xs">
@@ -993,7 +1140,7 @@ export const CoursesAndTracksView: React.FC = () => {
                             )}
 
                             <div className="flex items-center gap-2 ml-auto">
-                              {adminMode && (
+                              {adminMode && !selectedActivity.id.startsWith('gemini-') && (
                                 <button
                                   onClick={() =>
                                     handleDeleteCourse(selectedActivity.id, course.id)
@@ -1005,15 +1152,19 @@ export const CoursesAndTracksView: React.FC = () => {
                                 </button>
                               )}
 
-                              <a
-                                href={course.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1 text-xs font-semibold text-[#BC9EFD] hover:text-[#9D80E6]"
-                              >
-                                <span>Acessar</span>
-                                <ExternalLink className="w-3 h-3" />
-                              </a>
+                              {course.url ? (
+                                <a
+                                  href={course.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-1 text-xs font-semibold text-[#BC9EFD] hover:text-[#9D80E6]"
+                                >
+                                  <span>Acessar</span>
+                                  <ExternalLink className="w-3 h-3" />
+                                </a>
+                              ) : (
+                                <span className="text-xs text-[#767487]">Link não informado</span>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -1222,9 +1373,44 @@ export const CoursesAndTracksView: React.FC = () => {
                   type="url"
                   value={courseUrl}
                   onChange={(e) => setCourseUrl(e.target.value)}
-                  placeholder="https://..."
+                  placeholder="https://... (opcional)"
                   className="w-full bg-[#1A1A24] border border-[#2D2D40] rounded-lg px-3 py-2 text-sm text-[#F5F4F8]"
                 />
+              </div>
+
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-xs text-[#A7A5B4] mb-1">Nível</label>
+                  <input
+                    type="text"
+                    value={courseLevel}
+                    onChange={(e) => setCourseLevel(e.target.value)}
+                    placeholder="Intermediário"
+                    className="w-full bg-[#1A1A24] border border-[#2D2D40] rounded-lg px-3 py-2 text-sm text-[#F5F4F8]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-[#A7A5B4] mb-1">Modalidade</label>
+                  <input
+                    type="text"
+                    value={courseModality}
+                    onChange={(e) => setCourseModality(e.target.value)}
+                    placeholder="Online"
+                    className="w-full bg-[#1A1A24] border border-[#2D2D40] rounded-lg px-3 py-2 text-sm text-[#F5F4F8]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-[#A7A5B4] mb-1">Preço (R$)</label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={coursePrice}
+                    onChange={(e) => setCoursePrice(e.target.value)}
+                    placeholder="0,00"
+                    className="w-full bg-[#1A1A24] border border-[#2D2D40] rounded-lg px-3 py-2 text-sm text-[#F5F4F8]"
+                  />
+                </div>
               </div>
 
               <div>

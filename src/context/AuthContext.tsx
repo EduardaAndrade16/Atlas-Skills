@@ -54,21 +54,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         } catch (err) {
           console.warn('Erro ao carregar perfil inicial:', err);
         }
-      } else {
-        // Auto sign-in demo user if none yet, to provide instant delight
-        try {
-          const res = await authApi.login({
-            email: 'eduarda.andrade@atlasskills.com',
-            password: 'password123',
-          });
-          setToken(res.token);
-          setStoredUser(res.user);
-          setUser(res.user);
-          setProfile(res.profile);
-          setTokenState(res.token);
-        } catch {
-          // not critical
-        }
       }
       setIsLoading(false);
       checkBackendStatus();

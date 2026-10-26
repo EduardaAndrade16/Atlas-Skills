@@ -38,6 +38,7 @@ export const ProfileView: React.FC = () => {
   const [secondaryAreas, setSecondaryAreas] = useState<string[]>([]);
   const [newAreaInput, setNewAreaInput] = useState('');
   const [careerGoal, setCareerGoal] = useState('');
+  const [learningObjectives, setLearningObjectives] = useState('');
   const [phone, setPhone] = useState('');
   const [location, setLocation] = useState('');
   const [linkedinUrl, setLinkedinUrl] = useState('');
@@ -52,9 +53,10 @@ export const ProfileView: React.FC = () => {
     if (profile) {
       setHeadline(profile.headline || '');
       setBio(profile.bio || '');
-      setPrimaryArea(profile.primaryArea || 'Desenvolvimento Backend & Cloud');
+      setPrimaryArea(profile.primaryArea || '');
       setSecondaryAreas(profile.secondaryAreas || []);
       setCareerGoal(profile.careerGoal || '');
+      setLearningObjectives((profile.learningObjectives || []).join('\n'));
       setPhone(profile.phone || '');
       setLocation(profile.location || '');
       setLinkedinUrl(profile.linkedinUrl || '');
@@ -88,6 +90,10 @@ export const ProfileView: React.FC = () => {
         primaryArea,
         secondaryAreas,
         careerGoal,
+        learningObjectives: learningObjectives
+          .split('\n')
+          .map((objective) => objective.trim())
+          .filter(Boolean),
         phone,
         location,
         linkedinUrl,
@@ -177,6 +183,7 @@ export const ProfileView: React.FC = () => {
                 onChange={(e) => setPrimaryArea(e.target.value)}
                 className="w-full px-4 py-2.5 rounded-xl bg-[#1A1A24] border border-[#2E2E40] text-[#F5F4F8] focus:outline-none focus:border-[#BC9EFD] text-sm"
               >
+                <option value="" className="bg-[#222230]">Selecione uma área</option>
                 {COMMON_AREAS.map((area) => (
                   <option key={area} value={area} className="bg-[#222230]">
                     {area}
@@ -198,6 +205,19 @@ export const ProfileView: React.FC = () => {
                 className="w-full px-4 py-2.5 rounded-xl bg-[#1A1A24] border border-[#2E2E40] text-[#F5F4F8] placeholder-[#A7A5B4]/50 focus:outline-none focus:border-[#BC9EFD] text-sm"
               />
             </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-[#A7A5B4] uppercase tracking-wider mb-1.5">
+              Competências ou objetivos de aprendizagem
+            </label>
+            <textarea
+              rows={3}
+              placeholder="Uma competência por linha (opcional)"
+              value={learningObjectives}
+              onChange={(e) => setLearningObjectives(e.target.value)}
+              className="w-full px-4 py-2.5 rounded-xl bg-[#1A1A24] border border-[#2E2E40] text-[#F5F4F8] placeholder-[#A7A5B4]/50 focus:outline-none focus:border-[#BC9EFD] text-sm transition-all resize-y"
+            />
           </div>
 
           {/* Áreas secundárias */}

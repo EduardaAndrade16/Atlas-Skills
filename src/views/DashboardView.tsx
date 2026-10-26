@@ -248,7 +248,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
               Área de Atuação Principal
             </label>
             <p className="text-sm font-medium text-indigo-300 bg-indigo-950/30 p-2.5 rounded-xl border border-indigo-900/40">
-              {profile?.primaryArea || 'Tecnologia da Informação'}
+              {profile?.primaryArea || 'Área profissional não informada'}
             </p>
           </div>
 
