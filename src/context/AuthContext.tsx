@@ -108,31 +108,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const login = async (email: string, password: string) => {
-    setIsLoading(true);
-    try {
-      const res = await authApi.login({ email, password });
-      setToken(res.token);
-      setStoredUser(res.user);
-      setUser(res.user);
-      setProfile(res.profile);
-      setTokenState(res.token);
-    } finally {
-      setIsLoading(false);
-    }
+    const res = await authApi.login({ email, password });
+    setToken(res.token);
+    setStoredUser(res.user);
+    setUser(res.user);
+    setProfile(res.profile);
+    setTokenState(res.token);
   };
 
   const register = async (name: string, email: string, password: string) => {
-    setIsLoading(true);
-    try {
-      const res = await authApi.register({ name, email, password });
-      setToken(res.token);
-      setStoredUser(res.user);
-      setUser(res.user);
-      setProfile(res.profile);
-      setTokenState(res.token);
-    } finally {
-      setIsLoading(false);
-    }
+    const res = await authApi.register({ name, email, password });
+    setToken(res.token);
+    setStoredUser(res.user);
+    setUser(res.user);
+    setProfile(res.profile);
+    setTokenState(res.token);
   };
 
   const logout = () => {

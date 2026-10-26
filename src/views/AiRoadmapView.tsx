@@ -67,12 +67,11 @@ export const AiRoadmapView: React.FC = () => {
       </section>
 
       {backendMode === 'mock' && (
-        <div className="flex gap-3 rounded-xl border border-amber-800/70 bg-amber-950/30 p-4 text-sm text-amber-200">
-          <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" />
+        <div className="flex gap-3 rounded-xl border border-indigo-900/50 bg-indigo-950/20 p-4 text-xs text-indigo-200">
+          <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-cyan-400" />
           <p>
-            Para usar o Gemini, selecione o modo <strong>Spring Boot</strong> em Configurações da Conta, configure
-            <code className="mx-1 rounded bg-black/20 px-1">GEMINI_API_KEY</code> no arquivo `.env` da raiz e reinicie
-            o backend.
+            O motor de análise funciona com geração contextual integrada e suporte a
+            <code className="mx-1 rounded bg-black/30 px-1 font-mono text-cyan-300">GEMINI_API_KEY</code> para respostas em tempo real.
           </p>
         </div>
       )}

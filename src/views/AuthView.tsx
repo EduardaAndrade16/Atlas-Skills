@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LogIn, UserPlus, Shield, ArrowRight, CheckCircle2, AlertCircle, Eye, EyeOff } from 'lucide-react';
+import { LogIn, UserPlus, ArrowRight, CheckCircle2, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export const AuthView: React.FC = () => {
@@ -53,7 +53,12 @@ export const AuthView: React.FC = () => {
         setSuccess('Conta criada com sucesso! Redirecionando...');
       }
     } catch (err: any) {
-      setError(err.message || 'Ocorreu um erro ao processar sua requisição.');
+      const msg = err?.message || 'Ocorreu um erro ao processar sua requisição.';
+      if (msg.toLowerCase().includes('failed to fetch')) {
+        setError('Não foi possível conectar ao servidor. Verifique sua conexão e tente novamente.');
+      } else {
+        setError(msg);
+      }
     } finally {
       setSubmitting(false);
     }
@@ -125,9 +130,12 @@ export const AuthView: React.FC = () => {
 
           {/* Alerts */}
           {error && (
-            <div className="mb-5 p-3.5 rounded-xl bg-rose-950/30 border border-rose-800/50 text-rose-300 text-xs sm:text-sm flex items-start gap-2.5">
+            <div
+              role="alert"
+              className="mb-5 p-3.5 rounded-xl bg-rose-950/40 border border-rose-500/60 text-rose-200 text-xs sm:text-sm flex items-start gap-2.5 shadow-sm"
+            >
               <AlertCircle className="w-4 h-4 shrink-0 text-rose-400 mt-0.5" />
-              <span>{error}</span>
+              <div className="flex-1 font-medium leading-relaxed">{error}</div>
             </div>
           )}
 
@@ -150,7 +158,10 @@ export const AuthView: React.FC = () => {
                   required
                   placeholder="Ex: Carlos Eduardo Silva"
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onChange={(e) => {
+                    setName(e.target.value);
+                    if (error) setError(null);
+                  }}
                   className="w-full px-4 py-2.5 rounded-xl bg-[#1A1A24] border border-[#2E2E40] text-[#F5F4F8] placeholder-[#A7A5B4]/50 focus:outline-none focus:border-[#BC9EFD] text-sm transition-all"
                 />
               </div>
@@ -165,7 +176,10 @@ export const AuthView: React.FC = () => {
                 required
                 placeholder="seu.email@exemplo.com"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (error) setError(null);
+                }}
                 className="w-full px-4 py-2.5 rounded-xl bg-[#1A1A24] border border-[#2E2E40] text-[#F5F4F8] placeholder-[#A7A5B4]/50 focus:outline-none focus:border-[#BC9EFD] text-sm transition-all"
               />
             </div>
@@ -183,7 +197,10 @@ export const AuthView: React.FC = () => {
                   required
                   placeholder="••••••••"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    if (error) setError(null);
+                  }}
                   className="w-full px-4 py-2.5 pr-11 rounded-xl bg-[#1A1A24] border border-[#2E2E40] text-[#F5F4F8] placeholder-[#A7A5B4]/50 focus:outline-none focus:border-[#BC9EFD] text-sm transition-all"
                 />
                 <button
@@ -206,7 +223,10 @@ export const AuthView: React.FC = () => {
                   required
                   placeholder="••••••••"
                   value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  onChange={(e) => {
+                    setConfirmPassword(e.target.value);
+                    if (error) setError(null);
+                  }}
                   className="w-full px-4 py-2.5 rounded-xl bg-[#1A1A24] border border-[#2E2E40] text-[#F5F4F8] placeholder-[#A7A5B4]/50 focus:outline-none focus:border-[#BC9EFD] text-sm transition-all"
                 />
               </div>
@@ -239,12 +259,6 @@ export const AuthView: React.FC = () => {
               Preencher com Perfil Demo (Eduarda Andrade)
             </button>
           </div>
-        </div>
-
-        {/* Security Footer note */}
-        <div className="mt-6 text-center flex items-center justify-center gap-2 text-xs text-[#A7A5B4]/80">
-          <Shield className="w-3.5 h-3.5 text-[#BC9EFD]" />
-          <span>Autenticação protegida por JWT & Senhas criptografadas com BCrypt</span>
         </div>
       </div>
     </div>

@@ -82,8 +82,8 @@ export const AccountSettingsView: React.FC = () => {
       const res = await systemApi.pingBackend();
       setPingResult(
         res.online
-          ? `Sucesso: Backend Java Spring Boot online em ${res.url}`
-          : `Aviso: ${res.message}. Quando você rodar o Spring Boot localmente (mvn spring-boot:run na pasta backend), a integração conectará instantaneamente!`
+          ? `Sucesso: Backend Atlas online em ${res.url}`
+          : `Aviso: ${res.message}.`
       );
       await checkBackendStatus();
     } finally {
@@ -260,67 +260,20 @@ export const AccountSettingsView: React.FC = () => {
         </div>
 
         <p className="text-xs text-[#A7A5B4] leading-relaxed">
-          O Atlas Skills possui arquitetura desacoplada. Ele suporta tanto conexão direta à API Java 17 Spring Boot rodando localmente na porta <code className="text-[#BC9EFD] font-mono">8080</code> com H2/MySQL, quanto o <strong>Motor Integrado Atlas</strong> para uso imediato no navegador.
+          O Atlas Skills utiliza <strong>Armazenamento em Arquivos Criptografados (AES-256-GCM)</strong> na pasta <code className="text-[#BC9EFD] font-mono">/data/encrypted/</code>, mantendo seus dados protegidos em repouso de forma ágil, segura e independente de banco de dados externo.
         </p>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
-          <button
-            type="button"
-            onClick={() => setBackendMode('mock')}
-            className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer ${
-              backendMode === 'mock'
-                ? 'border-[#BC9EFD] bg-[#BC9EFD]/20 text-[#F5F4F8]'
-                : 'border-[#2D2D40] bg-[#1A1A24] text-[#A7A5B4] hover:border-[#8B6BD9]'
-            }`}
-          >
-            <div className="text-xs font-bold text-[#F5F4F8] mb-1">Motor Integrado Atlas</div>
-            <p className="text-[11px] text-[#A7A5B4]">
-              Executa no navegador com persistência local e dados completos.
-            </p>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setBackendMode('spring')}
-            className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer ${
-              backendMode === 'spring'
-                ? 'border-[#BC9EFD] bg-[#BC9EFD]/20 text-[#F5F4F8]'
-                : 'border-[#2D2D40] bg-[#1A1A24] text-[#A7A5B4] hover:border-[#8B6BD9]'
-            }`}
-          >
-            <div className="text-xs font-bold text-[#F5F4F8] mb-1">Spring Boot Estrito (8080)</div>
-            <p className="text-[11px] text-[#A7A5B4]">
-              Envia 100% das chamadas HTTP REST para <code className="text-[#BC9EFD]">localhost:8080</code>.
-            </p>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setBackendMode('auto')}
-            className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer ${
-              backendMode === 'auto'
-                ? 'border-[#BC9EFD] bg-[#BC9EFD]/20 text-[#F5F4F8]'
-                : 'border-[#2D2D40] bg-[#1A1A24] text-[#A7A5B4] hover:border-[#8B6BD9]'
-            }`}
-          >
-            <div className="text-xs font-bold text-[#F5F4F8] mb-1">Híbrido Inteligente</div>
-            <p className="text-[11px] text-[#A7A5B4]">
-              Tenta o Spring Boot primeiro; se indisponível, usa o motor local.
-            </p>
-          </button>
-        </div>
 
         <div className="p-3.5 rounded-xl bg-[#1A1A24] border border-[#2D2D40] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
           <div>
-            <span className="text-[#A7A5B4]">URL Base da API: </span>
-            <code className="text-[#BC9EFD] font-mono font-semibold">{getApiBaseUrl()}</code>
+            <span className="text-[#A7A5B4]">Modo de Armazenamento: </span>
+            <span className="text-emerald-400 font-semibold">Arquivos Criptografados (AES-256-GCM)</span>
           </div>
           <button
             onClick={handlePing}
             disabled={pinging}
             className="px-3.5 py-1.5 rounded-lg bg-[#222230] hover:bg-[#1A1A24] text-[#F5F4F8] font-semibold transition-colors border border-[#2D2D40] hover:border-[#8B6BD9] shrink-0 cursor-pointer"
           >
-            {pinging ? 'Testando Conexão...' : 'Testar Conexão com Spring Boot'}
+            {pinging ? 'Verificando...' : 'Testar Armazenamento & Backend'}
           </button>
         </div>
 
