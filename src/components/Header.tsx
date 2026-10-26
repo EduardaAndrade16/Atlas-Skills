@@ -16,6 +16,10 @@ const TAB_TITLES: Record<ActiveTab, { title: string; subtitle: string }> = {
     title: 'Cursos e Trilhas',
     subtitle: 'Escolha uma trilha para desenvolver suas competências',
   },
+  'ai-roadmap': {
+    title: 'Roadmap com IA',
+    subtitle: 'Análise de lacunas e trilha de aprendizagem personalizada',
+  },
   jobs: {
     title: 'Vagas & Oportunidades Profissionais',
     subtitle: 'Oportunidades profissionais e compatibilidade de competências',

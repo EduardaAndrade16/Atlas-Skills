@@ -2,6 +2,7 @@ import React from 'react';
 import {
   UserCheck,
   BookOpen,
+  Sparkles,
   Briefcase,
   Settings,
   LogOut,
@@ -12,6 +13,7 @@ import { useAuth } from '../context/AuthContext';
 export type ActiveTab =
   | 'profile'
   | 'courses-tracks'
+  | 'ai-roadmap'
   | 'jobs'
   | 'settings';
 
@@ -40,6 +42,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
       id: 'courses-tracks' as ActiveTab,
       label: 'Cursos e Trilhas',
       icon: BookOpen,
+    },
+    {
+      id: 'ai-roadmap' as ActiveTab,
+      label: 'Roadmap com IA',
+      icon: Sparkles,
     },
     {
       id: 'jobs' as ActiveTab,

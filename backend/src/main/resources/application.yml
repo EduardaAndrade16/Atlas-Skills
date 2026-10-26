@@ -6,6 +6,8 @@ server:
 spring:
   application:
     name: atlas-skills-backend
+  config:
+    import: optional:file:../.env[.properties],optional:file:./.env[.properties]
 
   # H2 Database configuration for zero-setup local development
   datasource:
@@ -34,6 +36,10 @@ spring:
         format_sql: true
 
 atlas:
+  ai:
+    gemini:
+      api-key: ${GEMINI_API_KEY:}
+      model: ${GEMINI_MODEL:gemini-3.8-flash}
   security:
     jwt:
       # Secret key (256-bit+ secure base64 string for HMAC-SHA256)

@@ -1,158 +1,168 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
-  Sparkles,
-  Cpu,
-  Layers,
+  AlertCircle,
   ArrowRight,
-  Target,
   BookOpen,
-  Briefcase,
-  GitBranch,
-  CheckCircle,
-  Database,
-  Code
+  CheckCircle2,
+  Clock3,
+  Cpu,
+  LoaderCircle,
+  RefreshCw,
+  Sparkles,
+  Target,
 } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import { aiApi, getBackendMode } from '../services/api';
+import { GapAnalysisResponse } from '../types';
 
 export const AiRoadmapView: React.FC = () => {
-  const { profile } = useAuth();
+  const [analysis, setAnalysis] = useState<GapAnalysisResponse | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const pipelineSteps = [
-    {
-      step: '01',
-      title: 'Mapeamento de Entrada',
-      desc: 'Ingestão dos dados de Perfil (Área, Objetivo), Hard Skills (níveis e anos), Soft Skills, Certificações e Projetos.',
-      status: 'Pronto na v1.0',
-      badgeColor: 'bg-emerald-950 text-emerald-300 border-emerald-800',
-    },
-    {
-      step: '02',
-      title: 'Geração de Embeddings & Taxonomia',
-      desc: 'Conversão das competências em vetores semânticos baseados na taxonomia global de tecnologia (O*NET / ESCO / TechRadar).',
-      status: 'Pronto para Integração',
-      badgeColor: 'bg-cyan-950 text-cyan-300 border-cyan-800',
-    },
-    {
-      step: '03',
-      title: 'Motor de Gap Analysis',
-      desc: 'Comparação da distância euclidiana/cosseno entre o estado atual do candidato e os requisitos do objetivo profissional almejado.',
-      status: 'Contrato Arquitetado',
-      badgeColor: 'bg-indigo-950 text-indigo-300 border-indigo-800',
-    },
-    {
-      step: '04',
-      title: 'Recomendação de Cursos & Vagas',
-      desc: 'Ranqueamento preditivo das capacitações com maior retorno sobre o tempo de estudo e vagas com score de fit acima de 80%.',
-      status: 'Próxima Release (v2.0)',
-      badgeColor: 'bg-purple-950 text-purple-300 border-purple-800',
-    },
-  ];
+  const generateAnalysis = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const result = await aiApi.generateGapAnalysis();
+      setAnalysis(result);
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : 'Não foi possível gerar a análise.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const backendMode = getBackendMode();
 
   return (
     <div className="max-w-5xl mx-auto space-y-6 pb-12">
-      {/* Header Banner */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-900 via-indigo-950/80 to-slate-900 border border-slate-800 p-6 sm:p-8 shadow-2xl">
+      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-900 via-indigo-950/80 to-slate-900 border border-slate-800 p-6 sm:p-8 shadow-2xl">
         <div className="absolute top-0 right-0 -mr-16 -mt-16 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="relative z-10 space-y-2">
+        <div className="relative z-10 space-y-4">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-300 text-xs font-semibold">
             <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-            Arquitetura de Expansão
+            Gemini · análise personalizada
           </div>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-            Preparação para o Motor de IA, Cursos & Vagas
+            Seu próximo passo profissional
           </h2>
           <p className="text-slate-300 text-sm max-w-2xl leading-relaxed">
-            Conforme especificado nos requisitos, esta versão entrega a base sólida de persistência, autenticação e gerenciamento de perfil, com arquitetura 100% pronta para plugar o motor de Inteligência Artificial.
+            Gere uma estimativa de aderência ao seu objetivo, identifique lacunas de competências e receba um plano
+            de aprendizagem baseado no seu perfil cadastrado.
+          </p>
+          <p className="max-w-2xl text-xs leading-relaxed text-slate-400">
+            Ao gerar, sua área, objetivo, competências, certificações e tecnologias dos projetos serão enviados ao
+            Google Gemini. Nome, e-mail, telefone e links pessoais não são enviados.
+          </p>
+          <button
+            type="button"
+            onClick={generateAnalysis}
+            disabled={isLoading}
+            className="inline-flex items-center gap-2 rounded-xl bg-indigo-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-400 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {isLoading ? <LoaderCircle className="h-4 w-4 animate-spin" /> : analysis ? <RefreshCw className="h-4 w-4" /> : <Sparkles className="h-4 w-4" />}
+            {isLoading ? 'Analisando perfil...' : analysis ? 'Gerar novamente' : 'Gerar meu roadmap'}
+          </button>
+        </div>
+      </section>
+
+      {backendMode === 'mock' && (
+        <div className="flex gap-3 rounded-xl border border-amber-800/70 bg-amber-950/30 p-4 text-sm text-amber-200">
+          <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" />
+          <p>
+            Para usar o Gemini, selecione o modo <strong>Spring Boot</strong> em Configurações da Conta, configure
+            <code className="mx-1 rounded bg-black/20 px-1">GEMINI_API_KEY</code> no arquivo `.env` da raiz e reinicie
+            o backend.
           </p>
         </div>
-      </div>
+      )}
 
-      {/* Pipeline Visualizer */}
-      <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-4">
-        <h3 className="text-base font-bold text-white flex items-center gap-2 border-b border-slate-800/80 pb-3">
-          <GitBranch className="w-5 h-5 text-indigo-400" />
-          Pipeline de Processamento & Análise de Lacunas (Gap Analysis)
-        </h3>
+      {error && (
+        <div role="alert" className="flex gap-3 rounded-xl border border-rose-800/70 bg-rose-950/30 p-4 text-sm text-rose-200">
+          <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" />
+          <p>{error}</p>
+        </div>
+      )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
-          {pipelineSteps.map((s) => (
-            <div
-              key={s.step}
-              className="p-4 rounded-xl bg-slate-950/70 border border-slate-800 flex flex-col justify-between"
-            >
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="font-mono text-xl font-black text-indigo-400">{s.step}</span>
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${s.badgeColor}`}>
-                    {s.status}
+      {analysis && (
+        <>
+          <section className="grid gap-4 md:grid-cols-[220px_1fr]">
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-5">
+              <div className="flex items-center gap-2 text-sm font-semibold text-slate-300">
+                <Target className="h-4 w-4 text-cyan-300" />
+                Aderência estimada
+              </div>
+              <p className="mt-3 text-5xl font-black text-white">{analysis.readinessScore}<span className="text-xl text-slate-400">%</span></p>
+              <p className="mt-2 text-xs text-slate-400">Estimativa gerada por IA, não é uma avaliação profissional.</p>
+            </div>
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-5">
+              <h3 className="mb-2 flex items-center gap-2 font-bold text-white">
+                <Cpu className="h-4 w-4 text-indigo-300" />
+                Resumo da análise
+              </h3>
+              <p className="text-sm leading-relaxed text-slate-300">{analysis.summary}</p>
+            </div>
+          </section>
+
+          <section className="rounded-2xl border border-slate-800 bg-slate-900/80 p-5 sm:p-6">
+            <h3 className="mb-4 flex items-center gap-2 font-bold text-white">
+              <Target className="h-5 w-5 text-amber-300" />
+              Competências para desenvolver
+            </h3>
+            {analysis.identifiedGaps.length === 0 ? (
+              <p className="text-sm text-slate-400">A análise não identificou lacunas específicas com os dados atuais.</p>
+            ) : (
+              <div className="grid gap-3 md:grid-cols-2">
+                {analysis.identifiedGaps.map((gap, index) => (
+                  <article key={`${gap.skill}-${index}`} className="rounded-xl border border-slate-800 bg-slate-950/60 p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <h4 className="font-semibold text-white">{gap.skill}</h4>
+                      <span className="shrink-0 rounded-full bg-amber-500/10 px-2 py-1 text-[11px] font-semibold text-amber-200">
+                        {gap.currentLevel} <ArrowRight className="inline h-3 w-3" /> {gap.targetLevel}
+                      </span>
+                    </div>
+                    <p className="mt-2 text-xs leading-relaxed text-slate-400">{gap.impact}</p>
+                  </article>
+                ))}
+              </div>
+            )}
+          </section>
+
+          <section className="space-y-4">
+            <h3 className="flex items-center gap-2 font-bold text-white">
+              <BookOpen className="h-5 w-5 text-cyan-300" />
+              Plano de aprendizagem
+            </h3>
+            {analysis.recommendedTracks.map((track, index) => (
+              <article key={`${track.title}-${index}`} className="rounded-2xl border border-slate-800 bg-slate-900/80 p-5 sm:p-6">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <h4 className="text-lg font-bold text-white">{track.title}</h4>
+                    <p className="mt-1 text-sm leading-relaxed text-slate-400">{track.description}</p>
+                  </div>
+                  <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-indigo-800 bg-indigo-950/70 px-3 py-1.5 text-xs font-semibold text-indigo-200">
+                    <Clock3 className="h-3.5 w-3.5" />
+                    {track.estimatedHours} horas
                   </span>
                 </div>
-                <h4 className="text-sm font-bold text-white">{s.title}</h4>
-                <p className="text-xs text-slate-400 leading-relaxed">{s.desc}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+                <ol className="mt-4 space-y-3">
+                  {track.steps.map((step, stepIndex) => (
+                    <li key={`${step}-${stepIndex}`} className="flex gap-3 text-sm text-slate-300">
+                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" />
+                      {step}
+                    </li>
+                  ))}
+                </ol>
+              </article>
+            ))}
+          </section>
 
-      {/* Target Data Model Mapping */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Input Profile Payload */}
-        <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-3">
-          <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
-            <h4 className="text-sm font-bold text-white flex items-center gap-2">
-              <Database className="w-4 h-4 text-emerald-400" />
-              Contrato de Entrada (Perfil Atual)
-            </h4>
-            <span className="text-[11px] font-mono text-slate-400">JSON Payload</span>
-          </div>
-          <p className="text-xs text-slate-400">
-            Estrutura gerada pelas entidades atuais do Spring Boot que alimenta o serviço de recomendação:
+          <p className="text-xs leading-relaxed text-slate-500">
+            Esta análise usa somente dados profissionais do perfil e pode conter imprecisões. As recomendações são
+            sugestões de estudo; cursos, vagas e links não são pesquisados nem verificados pelo Gemini.
           </p>
-          <pre className="p-3.5 rounded-xl bg-slate-950 border border-slate-800/80 text-[11px] text-cyan-300 font-mono overflow-x-auto">
-{`{
-  "userId": 1,
-  "careerGoal": "${profile?.careerGoal || 'Tech Lead'}",
-  "primaryArea": "${profile?.primaryArea || 'Backend'}",
-  "hardSkills": [
-    { "name": "Java", "level": "AVANCADO", "years": 4 },
-    { "name": "Spring Boot", "level": "AVANCADO", "years": 4 },
-    { "name": "Docker", "level": "INTERMEDIARIO", "years": 2 }
-  ],
-  "softSkills": ["Comunicação Assertiva", "Liderança"],
-  "certifications": ["AWS Solutions Architect"]
-}`}
-          </pre>
-        </div>
-
-        {/* Future Output Payload */}
-        <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-3">
-          <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
-            <h4 className="text-sm font-bold text-white flex items-center gap-2">
-              <Cpu className="w-4 h-4 text-purple-400" />
-              Contrato de Saída Planejado (IA)
-            </h4>
-            <span className="text-[11px] font-mono text-slate-400">/api/v1/ai/gap-analysis</span>
-          </div>
-          <p className="text-xs text-slate-400">
-            Resposta padronizada que a API fornecerá ao acionar o módulo de inteligência artificial:
-          </p>
-          <pre className="p-3.5 rounded-xl bg-slate-950 border border-slate-800/80 text-[11px] text-purple-300 font-mono overflow-x-auto">
-{`{
-  "readinessScore": 84,
-  "identifiedGaps": [
-    { "skill": "Kubernetes", "requiredLevel": "AVANCADO", "current": "AUSENTE" },
-    { "skill": "Micro-Frontends", "requiredLevel": "INTERMEDIARIO", "current": "BASICO" }
-  ],
-  "recommendedTracks": [
-    { "id": 101, "title": "Arquitetura Cloud Nativa com K8s", "estimatedHours": 30 },
-    { "id": 102, "title": "Liderança Técnica e Gestão de Pessoas", "estimatedHours": 20 }
-  ],
-  "matchedJobsCount": 14
-}`}
-          </pre>
-        </div>
-      </div>
+        </>
+      )}
     </div>
   );
 };

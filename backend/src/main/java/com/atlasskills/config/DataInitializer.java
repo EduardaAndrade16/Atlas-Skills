@@ -16,7 +16,7 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-@Profile("!test") // Não executa durante os testes unitários automatizados para manter os testes isolados
+@Profile("dev")
 public class DataInitializer implements CommandLineRunner {
 
     private final UserRepository userRepository;
@@ -105,6 +105,6 @@ public class DataInitializer implements CommandLineRunner {
                 Experience.builder().profile(savedProfile).company("Nexus Tech Solutions").position("Engenheira de Software Full Stack Pleno").workModel(WorkModel.REMOTO).startDate(LocalDate.of(2024, 3, 1)).isCurrent(true).activities("Desenvolvimento e sustentação de microsserviços em Spring Boot 3; modelagem de dados e interfaces em React.").build()
         ));
 
-        log.info("Banco H2 populado com sucesso! Usuário de teste: eduarda.andrade@atlasskills.com / password123");
+        log.info("Dados de demonstração do perfil dev carregados com sucesso.");
     }
 }

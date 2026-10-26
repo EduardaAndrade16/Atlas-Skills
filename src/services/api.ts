@@ -1,5 +1,6 @@
 import {
   AuthResponse,
+  GapAnalysisResponse,
   Certification,
   Course,
   CourseMaterial,
@@ -359,12 +360,20 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
       }
 
       return await response.json();
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : String(err);
       if (mode === 'spring') {
-        throw new Error(`Falha ao conectar com o backend Spring Boot (${baseUrl}): ${err.message}`);
+        throw new Error(`Falha ao conectar com o backend Spring Boot (${baseUrl}): ${errorMessage}`);
+      }
+      // AI analysis has no mock implementation. Preserve backend/API errors instead of
+      // silently falling through to the mock engine and hiding the actual failure.
+      if (endpoint === '/ai/gap-analysis') {
+        throw err instanceof Error
+          ? err
+          : new Error('Não foi possível gerar a análise com o backend Spring Boot.');
       }
       // If mode is 'auto' and fetch failed, gracefully fall through to Mock Engine!
-      console.warn('Spring Boot backend indisponível, usando motor interno Atlas:', err.message);
+      console.warn('Spring Boot backend indisponível, usando motor interno Atlas:', errorMessage);
     }
   }
 
@@ -635,6 +644,10 @@ async function executeMockRequest<T>(endpoint: string, options: RequestInit): Pr
     return summary as unknown as T;
   }
 
+  if (endpoint === '/ai/gap-analysis' && method === 'POST') {
+    throw new Error('A análise com Gemini requer o backend Spring Boot e uma GEMINI_API_KEY configurada.');
+  }
+
   throw new Error(`Rota simulada não encontrada: ${method} ${endpoint}`);
 }
 
@@ -666,6 +679,13 @@ export const profileApi = {
       body: JSON.stringify(data),
     }),
   getSummary: () => request<DashboardSummary>('/profile/summary'),
+};
+
+export const aiApi = {
+  generateGapAnalysis: () =>
+    request<GapAnalysisResponse>('/ai/gap-analysis', {
+      method: 'POST',
+    }),
 };
 
 export const hardSkillApi = {
@@ -2015,4 +2035,3 @@ export const jobApi = {
     };
   },
 };
-

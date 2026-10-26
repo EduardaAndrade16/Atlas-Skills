@@ -125,6 +125,23 @@ export interface AuthResponse {
   profile: UserProfile;
 }
 
+export interface GapAnalysisResponse {
+  readinessScore: number;
+  summary: string;
+  identifiedGaps: {
+    skill: string;
+    currentLevel: string;
+    targetLevel: string;
+    impact: string;
+  }[];
+  recommendedTracks: {
+    title: string;
+    description: string;
+    estimatedHours: number;
+    steps: string[];
+  }[];
+}
+
 export type TrackCategoryKey = 'hard-skills' | 'soft-skills' | 'linkedin' | 'curriculo';
 
 export interface CourseMaterial {
@@ -228,4 +245,3 @@ export interface JobMatchAnalysis {
   strengths: string[];
   recommendations: string[];
 }
-

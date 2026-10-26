@@ -59,10 +59,10 @@ Por padrão, a aplicação inicia com o banco de dados **H2 em memória**:
 - **Usuário**: `sa`
 - **Senha**: *(em branco)*
 - **DDL Automático**: O Hibernate cria e atualiza todas as tabelas na inicialização (`ddl-auto: update`).
-- **Carga de Dados Automática**: A classe `DataInitializer` popula automaticamente o usuário de demonstração e suas habilidades para testes imediatos.
+- **Carga de Dados de Demonstração**: O `DataInitializer` só é executado com o perfil Spring `dev`; não cria uma conta com senha conhecida em outros ambientes.
 
 ### Acessando o H2 Console (Ambiente de Desenvolvimento)
-1. Inicie o back-end Spring Boot (`mvn spring-boot:run`).
+1. Inicie o back-end Spring Boot com o perfil de desenvolvimento (`mvn spring-boot:run -Dspring-boot.run.profiles=dev`).
 2. Abra seu navegador em: `http://localhost:8080/api/v1/h2-console`
 3. No campo **JDBC URL**, insira: `jdbc:h2:mem:atlas_skills_db`
 4. Deixe o campo **User Name** como `sa` e a senha vazia.
@@ -85,9 +85,11 @@ Por padrão, a aplicação inicia com o banco de dados **H2 em memória**:
 
 3. Inicie o servidor Spring Boot com H2:
    ```bash
-   mvn spring-boot:run
+   mvn spring-boot:run -Dspring-boot.run.profiles=dev
    ```
-   *A API estará pronta em `http://localhost:8080/api/v1` com dados demo carregados!*
+   *A API estará pronta em `http://localhost:8080/api/v1` com dados demo carregados somente no perfil `dev`. O Spring Boot também carrega o `.env` da raiz automaticamente quando iniciado a partir de `backend/`. Não use o perfil `dev` em produção.*
+
+5. Para habilitar o roadmap com Gemini, preencha `GEMINI_API_KEY` e, opcionalmente, `GEMINI_MODEL` no `.env` da raiz antes de iniciar o backend. O arquivo `.env.example` já contém o modelo dessas variáveis. A análise envia ao Google Gemini a área, o objetivo profissional, hard/soft skills, certificações e tecnologias dos projetos do usuário autenticado; não envia nome, e-mail, telefone ou links pessoais. A chave permanece somente no backend.
 
 4. *(Opcional - Migração Futura para MySQL)*:
    Para migrar para MySQL sem alterar código ou entidades, basta iniciar com o perfil `mysql`:
@@ -131,6 +133,7 @@ Todos os endpoints privados requerem o cabeçalho `Authorization: Bearer <token_
 | `GET` | `/api/v1/profile` | Sim | Consulta dados do perfil profissional |
 | `PUT` | `/api/v1/profile` | Sim | Atualização dos dados do perfil |
 | `GET` | `/api/v1/profile/summary` | Sim | Resumo consolidado do perfil e score de preenchimento |
+| `POST` | `/api/v1/ai/gap-analysis` | Sim | Análise de lacunas e roadmap personalizado com Gemini |
 | `GET` | `/api/v1/skills/hard` | Sim | Listagem de hard skills do usuário |
 | `POST` | `/api/v1/skills/hard` | Sim | Inclusão de nova hard skill |
 | `PUT` | `/api/v1/skills/hard/{id}` | Sim | Edição de hard skill |
