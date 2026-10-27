@@ -1,2 +1,0 @@
--- No demo users, profiles, skills, courses, or learning tracks are preloaded.
--- Create accounts and register real platform content through Atlas Skills.

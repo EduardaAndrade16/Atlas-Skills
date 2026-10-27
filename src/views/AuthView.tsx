@@ -64,6 +64,13 @@ export const AuthView: React.FC = () => {
     }
   };
 
+  const handleFillDemo = () => {
+    setEmail('mariaeduarda.andrade@unoeste.edu.br');
+    setPassword('password123');
+    setIsLoginTab(true);
+    setError(null);
+  };
+
   return (
     <div className="min-h-screen bg-[#1A1A24] flex flex-col justify-center items-center px-4 py-12 relative">
       <div className="w-full max-w-md z-10">
@@ -241,6 +248,17 @@ export const AuthView: React.FC = () => {
             </button>
           </form>
 
+          {/* Quick Demo Login Helper */}
+          <div className="mt-6 pt-5 border-t border-[#2D2D40] text-center">
+            <p className="text-xs text-[#A7A5B4] mb-2.5">Quer explorar o perfil de demonstração?</p>
+            <button
+              type="button"
+              onClick={handleFillDemo}
+              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-[#1A1A24] hover:bg-[#28283A] text-[#BC9EFD] text-xs font-semibold transition-colors border border-[#2D2D40]"
+            >
+              Preencher Acesso Rápido (Conta de Teste)
+            </button>
+          </div>
         </div>
       </div>
     </div>

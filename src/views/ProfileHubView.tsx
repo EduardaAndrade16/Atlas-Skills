@@ -167,10 +167,16 @@ export const ProfileHubView: React.FC<ProfileHubViewProps> = ({ onNavigateToCour
     return () => window.removeEventListener('atlas_data_changed', handleDataChange);
   }, []);
 
-  // Determine completion of each stage based on real saved form data
+  // Determine completion of each stage based on real saved form data:
+  // Se a pessoa realizar ao menos um cadastro na etapa, ela é considerada como concluída
   const stageStatusMap = useMemo(() => {
     const isStep1Done = Boolean(
-      profile?.headline?.trim() && (profile?.careerGoal?.trim() || profile?.bio?.trim())
+      profile?.headline?.trim() ||
+      profile?.careerGoal?.trim() ||
+      profile?.bio?.trim() ||
+      profile?.primaryArea?.trim() ||
+      profile?.phone?.trim() ||
+      profile?.location?.trim()
     );
     const isStep2Done = (summary?.hardSkillsCount ?? 0) >= 1;
     const isStep3Done = (summary?.softSkillsCount ?? 0) >= 1;
@@ -184,8 +190,8 @@ export const ProfileHubView: React.FC<ProfileHubViewProps> = ({ onNavigateToCour
       apresentacao: {
         isCompleted: isStep1Done,
         metric: isStep1Done
-          ? 'Headline e metas definidos'
-          : 'Pendente: informe título e objetivo',
+          ? 'Dados do perfil profissional cadastrados'
+          : 'Pendente: preencha ao menos uma informação do perfil',
       },
       'hard-skills': {
         isCompleted: isStep2Done,
@@ -203,19 +209,19 @@ export const ProfileHubView: React.FC<ProfileHubViewProps> = ({ onNavigateToCour
         isCompleted: isStep4Done,
         metric: isStep4Done
           ? `${summary?.educationCount} formação(ões) acadêmica(s)`
-          : 'Pendente: adicione seu histórico acadêmico',
+          : 'Pendente: adicione ao menos 1 formação acadêmica',
       },
       cursos: {
         isCompleted: isStep5Done,
         metric: isStep5Done
           ? `${summary?.coursesCount} curso(s) registrado(s)`
-          : 'Pendente: adicione capacitações ou cursos',
+          : 'Pendente: adicione ao menos 1 curso',
       },
       certificacoes: {
         isCompleted: isStep6Done,
         metric: isStep6Done
           ? `${summary?.certificationsCount} credencial(is) profissional(is)`
-          : 'Pendente: cadastre suas certificações',
+          : 'Pendente: cadastre ao menos 1 certificação',
       },
       projetos: {
         isCompleted: isStep7Done,
@@ -227,7 +233,7 @@ export const ProfileHubView: React.FC<ProfileHubViewProps> = ({ onNavigateToCour
         isCompleted: isStep8Done,
         metric: isStep8Done
           ? `${summary?.experiencesCount} experiência(s) de mercado`
-          : 'Pendente: registre seu histórico profissional',
+          : 'Pendente: registre ao menos 1 experiência',
       },
     };
   }, [profile, summary]);

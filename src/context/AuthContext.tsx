@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import {
   authApi,
+  clearSessionData,
+  clearTemporarySessionData,
   getBackendMode,
   getStoredUser,
   getToken,
@@ -54,6 +56,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         } catch (err) {
           console.warn('Erro ao carregar perfil inicial:', err);
         }
+      } else {
+        // Auto sign-in demo user if none yet, to provide instant delight
+        try {
+          const res = await authApi.login({
+            email: 'eduarda.andrade@atlasskills.com',
+            password: 'password123',
+          });
+          setToken(res.token);
+          setStoredUser(res.user);
+          setUser(res.user);
+          setProfile(res.profile);
+          setTokenState(res.token);
+        } catch {
+          // not critical
+        }
       }
       setIsLoading(false);
       checkBackendStatus();
@@ -80,8 +97,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch {
       setBackendStatus({
         online: false,
-        message: 'Backend local não detectado na porta 8080',
-        url: 'http://localhost:8080/api/v1',
+        message: 'Backend Atlas offline',
+        url: '/api/v1',
       });
     }
   };
@@ -111,6 +128,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = () => {
+    void clearSessionData();
     setToken(null);
     setStoredUser(null);
     setUser(null);

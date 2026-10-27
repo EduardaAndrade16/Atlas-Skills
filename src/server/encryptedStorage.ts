@@ -148,62 +148,121 @@ export function getStorageStats(): {
 // ==============================================================================
 // DADOS INICIAIS (SEED) PARA AS COLEÇÕES CRIPTOGRAFADAS
 // ==============================================================================
+// DADOS INICIAIS LIMPOS PARA AS COLEÇÕES CRIPTOGRAFADAS (SEM DADOS PRÉ-CADASTRADOS)
+// ==============================================================================
 
 export const INITIAL_PROFILE = {
-  id: 0,
-  userId: 0,
+  id: 1,
+  userId: 1,
+  headline: '',
+  bio: '',
   primaryArea: '',
-  secondaryAreas: [] as string[],
+  secondaryAreas: [],
   careerGoal: '',
+  phone: '',
+  location: '',
+  linkedinUrl: '',
+  githubUrl: '',
+  portfolioUrl: '',
+  updatedAt: new Date().toISOString(),
 };
-export const INITIAL_USER: null = null;
-export const INITIAL_USERS: Array<{
-  user: { id: number; name: string; email: string; createdAt: string };
-  passwordHash: string;
-  profile: typeof INITIAL_PROFILE;
-}> = [];
-const INITIAL_HARD_SKILLS: unknown[] = [];
-const INITIAL_SOFT_SKILLS: unknown[] = [];
-const INITIAL_COURSES: unknown[] = [];
-const INITIAL_CERTIFICATIONS: unknown[] = [];
-const INITIAL_PROJECTS: unknown[] = [];
-const INITIAL_EDUCATION: unknown[] = [];
-const INITIAL_EXPERIENCES: unknown[] = [];
 
-// Inicializa todos os arquivos criptografados no boot da aplicação se ainda não existirem
+export const INITIAL_USER = {
+  id: 1,
+  name: 'Maria Eduarda Andrade',
+  email: 'mariaeduarda.andrade@unoeste.edu.br',
+  createdAt: new Date().toISOString(),
+};
+
+export const INITIAL_USERS = [
+  {
+    user: INITIAL_USER,
+    passwordHash: 'password123',
+    profile: INITIAL_PROFILE,
+  },
+];
+
+const INITIAL_HARD_SKILLS: any[] = [];
+const INITIAL_SOFT_SKILLS: any[] = [];
+const INITIAL_COURSES: any[] = [];
+const INITIAL_CERTIFICATIONS: any[] = [];
+const INITIAL_PROJECTS: any[] = [];
+const INITIAL_EDUCATION: any[] = [];
+const INITIAL_EXPERIENCES: any[] = [];
+
+// Força a reinicialização para um perfil 100% limpo, sem resquícios de sementes mock
+export function resetToEmptyUserAndProfile(): void {
+  ensureStorageDir();
+  writeEncryptedCollection('user', INITIAL_USER);
+  writeEncryptedCollection('users', INITIAL_USERS);
+  writeEncryptedCollection('profile', INITIAL_PROFILE);
+  writeEncryptedCollection('hard_skills', []);
+  writeEncryptedCollection('soft_skills', []);
+  writeEncryptedCollection('courses', []);
+  writeEncryptedCollection('certifications', []);
+  writeEncryptedCollection('projects', []);
+  writeEncryptedCollection('education', []);
+  writeEncryptedCollection('experiences', []);
+  writeEncryptedCollection('learning_tracks', null);
+  writeEncryptedCollection('track_progress', {});
+  console.log('[EncryptedStorage] Repositório resetado para estado 100% limpo.');
+}
+
+export function clearTemporarySessionData(userId: number): void {
+  ensureStorageDir();
+
+  const profile = {
+    ...INITIAL_PROFILE,
+    id: userId,
+    userId,
+    updatedAt: new Date().toISOString(),
+  };
+  const users = readEncryptedCollection<any[]>('users', INITIAL_USERS);
+  const updatedUsers = users.map((entry) =>
+    entry.user?.id === userId ? { ...entry, profile } : entry
+  );
+
+  writeEncryptedCollection('users', updatedUsers);
+  writeEncryptedCollection('profile', profile);
+  writeEncryptedCollection('hard_skills', []);
+  writeEncryptedCollection('soft_skills', []);
+  writeEncryptedCollection('courses', []);
+  writeEncryptedCollection('certifications', []);
+  writeEncryptedCollection('projects', []);
+  writeEncryptedCollection('education', []);
+  writeEncryptedCollection('experiences', []);
+  writeEncryptedCollection('learning_tracks', null);
+  writeEncryptedCollection('track_progress', {});
+}
+
+// Inicializa todos os arquivos criptografados no boot da aplicação
 export function initializeEncryptedDatabase(): void {
   ensureStorageDir();
 
-  // Lê (com migração legada transparente se necessário) e regrava com a chave de 256 bits ativa
-  const user = readEncryptedCollection('user', INITIAL_USER);
-  writeEncryptedCollection('user', user);
+  // Se houver resquícios do mock legado antigo (ex: Spring Boot 3 ou headline de Engenheira pré-preenchido), reseta para limpo
+  const existingHard = readEncryptedCollection<any[]>('hard_skills', []);
+  const existingProfile = readEncryptedCollection<any>('profile', INITIAL_PROFILE);
+  const hasLegacyMock =
+    existingHard.some((s) => s.name?.includes('Java 17') || s.name?.includes('Spring Boot 3')) ||
+    existingProfile.headline === 'Engenheira de Software Full Stack & Arquiteta Cloud';
 
-  const users = readEncryptedCollection('users', INITIAL_USERS);
-  writeEncryptedCollection('users', users);
+  if (hasLegacyMock) {
+    console.log('[EncryptedStorage] Detectado perfil legado com dados mock. Limpando para perfil virgem...');
+    resetToEmptyUserAndProfile();
+    return;
+  }
 
-  const profile = readEncryptedCollection('profile', INITIAL_PROFILE);
-  writeEncryptedCollection('profile', profile);
+  // Inicialização garantindo que todos os arquivos existam
+  readEncryptedCollection('user', INITIAL_USER);
+  readEncryptedCollection('users', INITIAL_USERS);
+  readEncryptedCollection('profile', INITIAL_PROFILE);
+  readEncryptedCollection('hard_skills', INITIAL_HARD_SKILLS);
+  readEncryptedCollection('soft_skills', INITIAL_SOFT_SKILLS);
+  readEncryptedCollection('courses', INITIAL_COURSES);
+  readEncryptedCollection('certifications', INITIAL_CERTIFICATIONS);
+  readEncryptedCollection('projects', INITIAL_PROJECTS);
+  readEncryptedCollection('education', INITIAL_EDUCATION);
+  readEncryptedCollection('experiences', INITIAL_EXPERIENCES);
 
-  const hard = readEncryptedCollection('hard_skills', INITIAL_HARD_SKILLS);
-  writeEncryptedCollection('hard_skills', hard);
-
-  const soft = readEncryptedCollection('soft_skills', INITIAL_SOFT_SKILLS);
-  writeEncryptedCollection('soft_skills', soft);
-
-  const courses = readEncryptedCollection('courses', INITIAL_COURSES);
-  writeEncryptedCollection('courses', courses);
-
-  const certs = readEncryptedCollection('certifications', INITIAL_CERTIFICATIONS);
-  writeEncryptedCollection('certifications', certs);
-
-  const projects = readEncryptedCollection('projects', INITIAL_PROJECTS);
-  writeEncryptedCollection('projects', projects);
-
-  const edu = readEncryptedCollection('education', INITIAL_EDUCATION);
-  writeEncryptedCollection('education', edu);
-
-  const exp = readEncryptedCollection('experiences', INITIAL_EXPERIENCES);
-  writeEncryptedCollection('experiences', exp);
-
-  console.log(`[EncryptedStorage] Repositório inicializado e sincronizado com chave de 256 bits em ${STORAGE_DIR} (AES-256-GCM).`);
+  console.log(`[EncryptedStorage] Repositório inicializado e sincronizado em ${STORAGE_DIR} (AES-256-GCM).`);
 }

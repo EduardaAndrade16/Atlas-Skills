@@ -1,0 +1,2807 @@
+{
+  "versao": "2.0",
+  "idioma": "pt-BR",
+  "descricao": "Base de conhecimento de competências técnicas e comportamentais para apoiar a geração de trilhas profissionais personalizadas.",
+  "orientacao_de_uso": {
+    "objetivo": "Comparar as competências cadastradas no perfil do usuário com as competências de cada área e sugerir prioridades de desenvolvimento.",
+    "campos_relevantes_para_personalizacao": [
+      "categoria",
+      "skill",
+      "palavras_chave",
+      "fonte"
+    ],
+    "observacao": "Esta base descreve competências por área; a ordem, a duração e os recursos de aprendizagem devem ser definidos pela lógica de personalização da plataforma."
+  },
+  "areas": [
+    {
+      "id": "backend",
+      "nome": "Backend",
+      "descricao": "Desenvolvimento de servidores e APIs",
+      "arquivo_origem": "Base_conhecimento_BACKEND-1.xlsx",
+      "total_skills": 30,
+      "total_hard_skills": 20,
+      "total_soft_skills": 10,
+      "skills": [
+        {
+          "categoria": "hard_skill",
+          "skill": "Java e orientação a objetos",
+          "palavras_chave": [
+            "classes",
+            "herança",
+            "polimorfismo",
+            "interfaces",
+            "coleções",
+            "streams",
+            "exceções",
+            "generics"
+          ],
+          "descricao_original": "classes, herança, polimorfismo, interfaces, coleções, streams, exceções, generics",
+          "fonte": "https://docs.oracle.com/en/java/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Spring Boot",
+          "palavras_chave": [
+            "injeção de dependências",
+            "auto-configuração",
+            "starters",
+            "controllers",
+            "services",
+            "profiles"
+          ],
+          "descricao_original": "injeção de dependências, auto-configuração, starters, controllers, services, profiles",
+          "fonte": "https://spring.io/projects/spring-boot"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "APIs REST",
+          "palavras_chave": [
+            "verbos HTTP",
+            "status codes",
+            "recursos",
+            "idempotência",
+            "versionamento",
+            "paginação",
+            "HATEOAS"
+          ],
+          "descricao_original": "verbos HTTP, status codes, recursos, idempotência, versionamento, paginação, HATEOAS",
+          "fonte": "https://developer.mozilla.org/en-US/docs/Web/HTTP"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Documentação de APIs (OpenAPI)",
+          "palavras_chave": [
+            "OpenAPI",
+            "Swagger",
+            "contratos de API",
+            "especificação",
+            "exemplos de requisição e resposta"
+          ],
+          "descricao_original": "OpenAPI, Swagger, contratos de API, especificação, exemplos de requisição e resposta",
+          "fonte": "https://www.openapis.org/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Bancos de dados relacionais e SQL",
+          "palavras_chave": [
+            "modelagem",
+            "normalização",
+            "joins",
+            "índices",
+            "transações",
+            "consultas",
+            "ACID"
+          ],
+          "descricao_original": "modelagem, normalização, joins, índices, transações, consultas, ACID",
+          "fonte": "https://www.postgresql.org/docs/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Persistência com JPA e Hibernate",
+          "palavras_chave": [
+            "entidades",
+            "mapeamento objeto-relacional",
+            "relacionamentos",
+            "lazy loading",
+            "JPQL",
+            "migrations"
+          ],
+          "descricao_original": "entidades, mapeamento objeto-relacional, relacionamentos, lazy loading, JPQL, migrations",
+          "fonte": "https://hibernate.org/orm/documentation/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Bancos de dados NoSQL",
+          "palavras_chave": [
+            "documentos",
+            "chave-valor",
+            "MongoDB",
+            "modelagem não relacional",
+            "consistência eventual"
+          ],
+          "descricao_original": "documentos, chave-valor, MongoDB, modelagem não relacional, consistência eventual",
+          "fonte": "https://www.mongodb.com/docs/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Autenticação e autorização",
+          "palavras_chave": [
+            "JWT",
+            "OAuth 2.0",
+            "sessões",
+            "roles",
+            "Spring Security",
+            "controle de acesso"
+          ],
+          "descricao_original": "JWT, OAuth 2.0, sessões, roles, Spring Security, controle de acesso",
+          "fonte": "https://jwt.io/introduction"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Segurança de APIs",
+          "palavras_chave": [
+            "OWASP API Top 10",
+            "validação de entradas",
+            "rate limiting",
+            "exposição de dados"
+          ],
+          "descricao_original": "OWASP API Top 10, validação de entradas, rate limiting, exposição de dados",
+          "fonte": "https://owasp.org/www-project-api-security/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Testes automatizados",
+          "palavras_chave": [
+            "testes unitários",
+            "integração",
+            "JUnit",
+            "Mockito",
+            "TDD",
+            "cobertura de testes"
+          ],
+          "descricao_original": "testes unitários, integração, JUnit, Mockito, TDD, cobertura de testes",
+          "fonte": "https://junit.org/junit5/docs/current/user-guide/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Controle de versão com Git",
+          "palavras_chave": [
+            "commits",
+            "branches",
+            "merge",
+            "rebase",
+            "pull requests",
+            "fluxo de trabalho"
+          ],
+          "descricao_original": "commits, branches, merge, rebase, pull requests, fluxo de trabalho",
+          "fonte": "https://git-scm.com/doc"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Contêineres com Docker",
+          "palavras_chave": [
+            "Dockerfile",
+            "imagens",
+            "volumes",
+            "docker compose",
+            "redes",
+            "ambientes reproduzíveis"
+          ],
+          "descricao_original": "Dockerfile, imagens, volumes, docker compose, redes, ambientes reproduzíveis",
+          "fonte": "https://docs.docker.com/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Padrões de projeto e arquitetura",
+          "palavras_chave": [
+            "SOLID",
+            "design patterns",
+            "arquitetura em camadas",
+            "DDD",
+            "Clean Architecture",
+            "microsserviços"
+          ],
+          "descricao_original": "SOLID, design patterns, arquitetura em camadas, DDD, Clean Architecture, microsserviços",
+          "fonte": "https://refactoring.guru/design-patterns"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Mensageria e processamento assíncrono",
+          "palavras_chave": [
+            "filas",
+            "eventos",
+            "RabbitMQ",
+            "Kafka",
+            "produtores",
+            "consumidores",
+            "resiliência"
+          ],
+          "descricao_original": "filas, eventos, RabbitMQ, Kafka, produtores, consumidores, resiliência",
+          "fonte": "https://kafka.apache.org/documentation/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Cache e desempenho",
+          "palavras_chave": [
+            "Redis",
+            "estratégias de cache",
+            "TTL",
+            "otimização de consultas",
+            "profiling",
+            "escalabilidade"
+          ],
+          "descricao_original": "Redis, estratégias de cache, TTL, otimização de consultas, profiling, escalabilidade",
+          "fonte": "https://redis.io/docs/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "GraphQL",
+          "palavras_chave": [
+            "schemas",
+            "queries",
+            "mutations",
+            "resolvers",
+            "tipagem",
+            "comparação com REST"
+          ],
+          "descricao_original": "schemas, queries, mutations, resolvers, tipagem, comparação com REST",
+          "fonte": "https://graphql.org/learn/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "CI/CD para backend",
+          "palavras_chave": [
+            "pipelines",
+            "build automatizado",
+            "testes na integração contínua",
+            "deploy",
+            "GitHub Actions"
+          ],
+          "descricao_original": "pipelines, build automatizado, testes na integração contínua, deploy, GitHub Actions",
+          "fonte": "https://docs.github.com/actions"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Observabilidade e logs",
+          "palavras_chave": [
+            "logging estruturado",
+            "métricas",
+            "tracing",
+            "monitoramento",
+            "diagnóstico de falhas"
+          ],
+          "descricao_original": "logging estruturado, métricas, tracing, monitoramento, diagnóstico de falhas",
+          "fonte": "https://opentelemetry.io/docs/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Computação em nuvem",
+          "palavras_chave": [
+            "deploy em nuvem",
+            "serviços gerenciados",
+            "bancos gerenciados",
+            "configuração",
+            "custos"
+          ],
+          "descricao_original": "deploy em nuvem, serviços gerenciados, bancos gerenciados, configuração, custos",
+          "fonte": "https://docs.aws.amazon.com/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Princípios de aplicações 12-factor",
+          "palavras_chave": [
+            "configuração por ambiente",
+            "dependências",
+            "stateless",
+            "logs",
+            "paridade dev e produção"
+          ],
+          "descricao_original": "configuração por ambiente, dependências, stateless, logs, paridade dev e produção",
+          "fonte": "https://12factor.net/"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Pensamento analítico",
+          "palavras_chave": [
+            "análise de requisitos",
+            "modelagem de dados",
+            "leitura de métricas",
+            "avaliação de trade-offs de arquitetura"
+          ],
+          "descricao_original": "análise de requisitos, modelagem de dados, leitura de métricas, avaliação de trade-offs de arquitetura",
+          "fonte": "https://www.computer.org/education/bodies-of-knowledge/software-engineering"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Resolução de problemas",
+          "palavras_chave": [
+            "depuração",
+            "leitura de stack traces",
+            "isolamento de falhas",
+            "análise de causa raiz"
+          ],
+          "descricao_original": "depuração, leitura de stack traces, isolamento de falhas, análise de causa raiz",
+          "fonte": "https://www.computer.org/education/bodies-of-knowledge/software-engineering"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Atenção aos detalhes",
+          "palavras_chave": [
+            "validação de regras de negócio",
+            "tratamento de casos extremos",
+            "revisão de código",
+            "consistência de dados"
+          ],
+          "descricao_original": "validação de regras de negócio, tratamento de casos extremos, revisão de código, consistência de dados",
+          "fonte": "https://www.computer.org/education/bodies-of-knowledge/software-engineering"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Comunicação técnica",
+          "palavras_chave": [
+            "documentação de APIs",
+            "README",
+            "comunicação com front-end",
+            "descrição de pull requests"
+          ],
+          "descricao_original": "documentação de APIs, README, comunicação com front-end, descrição de pull requests",
+          "fonte": "https://rework.withgoogle.com/"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Trabalho em equipe",
+          "palavras_chave": [
+            "code review",
+            "pair programming",
+            "integração com front-end e DevOps",
+            "cultura de colaboração"
+          ],
+          "descricao_original": "code review, pair programming, integração com front-end e DevOps, cultura de colaboração",
+          "fonte": "https://rework.withgoogle.com/"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Ética e responsabilidade",
+          "palavras_chave": [
+            "privacidade",
+            "LGPD",
+            "proteção de dados de usuários",
+            "responsabilidade sobre código em produção"
+          ],
+          "descricao_original": "privacidade, LGPD, proteção de dados de usuários, responsabilidade sobre código em produção",
+          "fonte": "https://www.acm.org/code-of-ethics"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Adaptabilidade",
+          "palavras_chave": [
+            "mudança de requisitos",
+            "novas versões de frameworks",
+            "migração tecnológica",
+            "metodologias ágeis"
+          ],
+          "descricao_original": "mudança de requisitos, novas versões de frameworks, migração tecnológica, metodologias ágeis",
+          "fonte": "https://agilemanifesto.org/"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Gestão de prioridades",
+          "palavras_chave": [
+            "estimativas",
+            "planejamento de sprints",
+            "priorização de bugs",
+            "gestão do tempo"
+          ],
+          "descricao_original": "estimativas, planejamento de sprints, priorização de bugs, gestão do tempo",
+          "fonte": "https://scrumguides.org/"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Aprendizagem contínua",
+          "palavras_chave": [
+            "estudo de novas versões de Java e Spring",
+            "leitura de documentação",
+            "projetos práticos"
+          ],
+          "descricao_original": "estudo de novas versões de Java e Spring, leitura de documentação, projetos práticos",
+          "fonte": "https://www.computer.org/education/bodies-of-knowledge/software-engineering"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Pensamento crítico",
+          "palavras_chave": [
+            "avaliação de bibliotecas",
+            "questionamento de requisitos",
+            "análise de segurança e desempenho"
+          ],
+          "descricao_original": "avaliação de bibliotecas, questionamento de requisitos, análise de segurança e desempenho",
+          "fonte": "https://www.computer.org/education/bodies-of-knowledge/software-engineering"
+        }
+      ]
+    },
+    {
+      "id": "dados",
+      "nome": "Dados",
+      "descricao": "Engenharia e análise de dados",
+      "arquivo_origem": "Base_conhecimento_DADOS.xlsx",
+      "total_skills": 30,
+      "total_hard_skills": 20,
+      "total_soft_skills": 10,
+      "skills": [
+        {
+          "categoria": "hard_skill",
+          "skill": "SQL avançado",
+          "palavras_chave": [
+            "joins",
+            "subconsultas",
+            "window functions",
+            "CTEs",
+            "agregações",
+            "otimização de consultas"
+          ],
+          "descricao_original": "joins, subconsultas, window functions, CTEs, agregações, otimização de consultas",
+          "fonte": "https://www.postgresql.org/docs/current/sql.html"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Python para dados",
+          "palavras_chave": [
+            "sintaxe",
+            "estruturas de dados",
+            "funções",
+            "ambientes virtuais",
+            "manipulação de arquivos"
+          ],
+          "descricao_original": "sintaxe, estruturas de dados, funções, ambientes virtuais, manipulação de arquivos",
+          "fonte": "https://docs.python.org/3/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Pandas e NumPy",
+          "palavras_chave": [
+            "DataFrames",
+            "limpeza de dados",
+            "agregações",
+            "arrays",
+            "vetorização",
+            "séries temporais"
+          ],
+          "descricao_original": "DataFrames, limpeza de dados, agregações, arrays, vetorização, séries temporais",
+          "fonte": "https://pandas.pydata.org/docs/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Modelagem de dados",
+          "palavras_chave": [
+            "modelo relacional",
+            "modelo dimensional",
+            "star schema",
+            "normalização",
+            "chaves",
+            "granularidade"
+          ],
+          "descricao_original": "modelo relacional, modelo dimensional, star schema, normalização, chaves, granularidade",
+          "fonte": "https://www.kimballgroup.com/data-warehouse-business-intelligence-resources/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Data warehouse",
+          "palavras_chave": [
+            "armazenamento analítico",
+            "ETL",
+            "tabelas fato e dimensão",
+            "particionamento",
+            "BigQuery",
+            "Snowflake"
+          ],
+          "descricao_original": "armazenamento analítico, ETL, tabelas fato e dimensão, particionamento, BigQuery, Snowflake",
+          "fonte": "https://cloud.google.com/bigquery/docs"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Pipelines ETL e ELT",
+          "palavras_chave": [
+            "extração",
+            "transformação",
+            "carga",
+            "orquestração",
+            "idempotência",
+            "reprocessamento"
+          ],
+          "descricao_original": "extração, transformação, carga, orquestração, idempotência, reprocessamento",
+          "fonte": "https://airflow.apache.org/docs/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Transformação de dados com dbt",
+          "palavras_chave": [
+            "modelos SQL",
+            "testes de dados",
+            "documentação",
+            "linhagem",
+            "materializações"
+          ],
+          "descricao_original": "modelos SQL, testes de dados, documentação, linhagem, materializações",
+          "fonte": "https://docs.getdbt.com/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Processamento distribuído",
+          "palavras_chave": [
+            "Apache Spark",
+            "DataFrames distribuídos",
+            "particionamento",
+            "processamento em lote"
+          ],
+          "descricao_original": "Apache Spark, DataFrames distribuídos, particionamento, processamento em lote",
+          "fonte": "https://spark.apache.org/docs/latest/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Processamento em streaming",
+          "palavras_chave": [
+            "eventos",
+            "Kafka",
+            "janelas de tempo",
+            "processamento em tempo real",
+            "tolerância a falhas"
+          ],
+          "descricao_original": "eventos, Kafka, janelas de tempo, processamento em tempo real, tolerância a falhas",
+          "fonte": "https://kafka.apache.org/documentation/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Data lakes e formatos de arquivo",
+          "palavras_chave": [
+            "Parquet",
+            "Avro",
+            "armazenamento em objeto",
+            "lakehouse",
+            "particionamento",
+            "compressão"
+          ],
+          "descricao_original": "Parquet, Avro, armazenamento em objeto, lakehouse, particionamento, compressão",
+          "fonte": "https://parquet.apache.org/docs/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Bancos de dados NoSQL",
+          "palavras_chave": [
+            "documentos",
+            "chave-valor",
+            "colunar",
+            "grafos",
+            "MongoDB",
+            "escolha por caso de uso"
+          ],
+          "descricao_original": "documentos, chave-valor, colunar, grafos, MongoDB, escolha por caso de uso",
+          "fonte": "https://www.mongodb.com/docs/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Visualização de dados",
+          "palavras_chave": [
+            "gráficos",
+            "dashboards",
+            "storytelling com dados",
+            "Matplotlib",
+            "boas práticas visuais"
+          ],
+          "descricao_original": "gráficos, dashboards, storytelling com dados, Matplotlib, boas práticas visuais",
+          "fonte": "https://matplotlib.org/stable/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Business Intelligence",
+          "palavras_chave": [
+            "Power BI",
+            "indicadores",
+            "KPIs",
+            "modelagem semântica",
+            "DAX",
+            "relatórios"
+          ],
+          "descricao_original": "Power BI, indicadores, KPIs, modelagem semântica, DAX, relatórios",
+          "fonte": "https://learn.microsoft.com/en-us/power-bi/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Estatística aplicada",
+          "palavras_chave": [
+            "estatística descritiva",
+            "probabilidade",
+            "distribuições",
+            "testes de hipótese",
+            "correlação"
+          ],
+          "descricao_original": "estatística descritiva, probabilidade, distribuições, testes de hipótese, correlação",
+          "fonte": "https://docs.scipy.org/doc/scipy/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Qualidade de dados",
+          "palavras_chave": [
+            "validação",
+            "completude",
+            "consistência",
+            "duplicidade",
+            "testes de dados",
+            "Great Expectations"
+          ],
+          "descricao_original": "validação, completude, consistência, duplicidade, testes de dados, Great Expectations",
+          "fonte": "https://docs.greatexpectations.io/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Governança de dados",
+          "palavras_chave": [
+            "catálogo de dados",
+            "linhagem",
+            "metadados",
+            "políticas",
+            "propriedade de dados",
+            "DAMA"
+          ],
+          "descricao_original": "catálogo de dados, linhagem, metadados, políticas, propriedade de dados, DAMA",
+          "fonte": "https://www.dama.org/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Privacidade e LGPD",
+          "palavras_chave": [
+            "dados pessoais",
+            "anonimização",
+            "consentimento",
+            "base legal",
+            "minimização de dados"
+          ],
+          "descricao_original": "dados pessoais, anonimização, consentimento, base legal, minimização de dados",
+          "fonte": "https://www.gov.br/anpd/pt-br"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Notebooks e análise exploratória",
+          "palavras_chave": [
+            "Jupyter",
+            "análise exploratória",
+            "hipóteses",
+            "documentação de análises",
+            "reprodutibilidade"
+          ],
+          "descricao_original": "Jupyter, análise exploratória, hipóteses, documentação de análises, reprodutibilidade",
+          "fonte": "https://jupyter.org/documentation"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Computação em nuvem para dados",
+          "palavras_chave": [
+            "armazenamento em nuvem",
+            "serviços gerenciados",
+            "custos",
+            "permissões",
+            "Redshift",
+            "BigQuery"
+          ],
+          "descricao_original": "armazenamento em nuvem, serviços gerenciados, custos, permissões, Redshift, BigQuery",
+          "fonte": "https://docs.aws.amazon.com/redshift/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Introdução a machine learning",
+          "palavras_chave": [
+            "modelos supervisionados",
+            "features",
+            "treino e teste",
+            "métricas",
+            "scikit-learn"
+          ],
+          "descricao_original": "modelos supervisionados, features, treino e teste, métricas, scikit-learn",
+          "fonte": "https://scikit-learn.org/stable/"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Pensamento analítico",
+          "palavras_chave": [
+            "análise exploratória",
+            "identificação de padrões",
+            "interpretação de métricas",
+            "correlação de dados"
+          ],
+          "descricao_original": "análise exploratória, identificação de padrões, interpretação de métricas, correlação de dados",
+          "fonte": "https://www.computer.org/education/bodies-of-knowledge/software-engineering"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Resolução de problemas",
+          "palavras_chave": [
+            "diagnóstico de falhas em pipelines",
+            "análise de causa raiz",
+            "depuração de consultas"
+          ],
+          "descricao_original": "diagnóstico de falhas em pipelines, análise de causa raiz, depuração de consultas",
+          "fonte": "https://www.computer.org/education/bodies-of-knowledge/software-engineering"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Atenção aos detalhes",
+          "palavras_chave": [
+            "validação de dados",
+            "consistência de métricas",
+            "revisão de consultas",
+            "detecção de anomalias"
+          ],
+          "descricao_original": "validação de dados, consistência de métricas, revisão de consultas, detecção de anomalias",
+          "fonte": "https://www.computer.org/education/bodies-of-knowledge/software-engineering"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Comunicação técnica",
+          "palavras_chave": [
+            "storytelling com dados",
+            "apresentação de resultados",
+            "documentação de pipelines",
+            "comunicação com negócio"
+          ],
+          "descricao_original": "storytelling com dados, apresentação de resultados, documentação de pipelines, comunicação com negócio",
+          "fonte": "https://rework.withgoogle.com/"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Trabalho em equipe",
+          "palavras_chave": [
+            "colaboração com negócio",
+            "engenharia e ciência de dados",
+            "compartilhamento de conhecimento"
+          ],
+          "descricao_original": "colaboração com negócio, engenharia e ciência de dados, compartilhamento de conhecimento",
+          "fonte": "https://rework.withgoogle.com/"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Ética e responsabilidade",
+          "palavras_chave": [
+            "privacidade",
+            "LGPD",
+            "uso responsável de dados",
+            "vieses",
+            "transparência nas análises"
+          ],
+          "descricao_original": "privacidade, LGPD, uso responsável de dados, vieses, transparência nas análises",
+          "fonte": "https://www.acm.org/code-of-ethics"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Adaptabilidade",
+          "palavras_chave": [
+            "novas ferramentas de dados",
+            "mudanças de fontes",
+            "evolução de stacks",
+            "aprendizado de tecnologias"
+          ],
+          "descricao_original": "novas ferramentas de dados, mudanças de fontes, evolução de stacks, aprendizado de tecnologias",
+          "fonte": "https://agilemanifesto.org/"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Gestão de prioridades",
+          "palavras_chave": [
+            "priorização de demandas analíticas",
+            "impacto no negócio",
+            "gestão do tempo",
+            "tomada de decisão"
+          ],
+          "descricao_original": "priorização de demandas analíticas, impacto no negócio, gestão do tempo, tomada de decisão",
+          "fonte": "https://scrumguides.org/"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Aprendizagem contínua",
+          "palavras_chave": [
+            "atualização em ferramentas de dados",
+            "estudo autônomo",
+            "projetos e competições práticas"
+          ],
+          "descricao_original": "atualização em ferramentas de dados, estudo autônomo, projetos e competições práticas",
+          "fonte": "https://www.computer.org/education/bodies-of-knowledge/software-engineering"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Pensamento crítico",
+          "palavras_chave": [
+            "questionamento de hipóteses",
+            "validação de fontes",
+            "análise de confiabilidade",
+            "interpretação crítica de resultados"
+          ],
+          "descricao_original": "questionamento de hipóteses, validação de fontes, análise de confiabilidade, interpretação crítica de resultados",
+          "fonte": "https://www.computer.org/education/bodies-of-knowledge/software-engineering"
+        }
+      ]
+    },
+    {
+      "id": "frontend",
+      "nome": "Frontend",
+      "descricao": "Desenvolvimento de interfaces web",
+      "arquivo_origem": "Base_conhecimento_FRONTEND-1.xlsx",
+      "total_skills": 30,
+      "total_hard_skills": 20,
+      "total_soft_skills": 10,
+      "skills": [
+        {
+          "categoria": "hard_skill",
+          "skill": "HTML semântico",
+          "palavras_chave": [
+            "tags semânticas",
+            "estrutura de documento",
+            "formulários",
+            "acessibilidade básica",
+            "SEO"
+          ],
+          "descricao_original": "tags semânticas, estrutura de documento, formulários, acessibilidade básica, SEO",
+          "fonte": "https://developer.mozilla.org/en-US/docs/Web/HTML"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "CSS e layout responsivo",
+          "palavras_chave": [
+            "flexbox",
+            "grid",
+            "media queries",
+            "mobile first",
+            "unidades relativas",
+            "animações"
+          ],
+          "descricao_original": "flexbox, grid, media queries, mobile first, unidades relativas, animações",
+          "fonte": "https://developer.mozilla.org/en-US/docs/Web/CSS"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "JavaScript moderno",
+          "palavras_chave": [
+            "ES6+",
+            "DOM",
+            "eventos",
+            "promises",
+            "async/await",
+            "módulos",
+            "closures"
+          ],
+          "descricao_original": "ES6+, DOM, eventos, promises, async/await, módulos, closures",
+          "fonte": "https://developer.mozilla.org/en-US/docs/Web/JavaScript"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "TypeScript",
+          "palavras_chave": [
+            "tipagem estática",
+            "interfaces",
+            "generics",
+            "strict mode",
+            "tipos utilitários"
+          ],
+          "descricao_original": "tipagem estática, interfaces, generics, strict mode, tipos utilitários",
+          "fonte": "https://www.typescriptlang.org/docs/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "React",
+          "palavras_chave": [
+            "componentes",
+            "props",
+            "estado",
+            "hooks",
+            "renderização",
+            "composição",
+            "ciclo de vida"
+          ],
+          "descricao_original": "componentes, props, estado, hooks, renderização, composição, ciclo de vida",
+          "fonte": "https://react.dev/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Next.js",
+          "palavras_chave": [
+            "App Router",
+            "Server Components",
+            "rotas",
+            "SSR",
+            "SSG",
+            "use client",
+            "otimização de imagens"
+          ],
+          "descricao_original": "App Router, Server Components, rotas, SSR, SSG, use client, otimização de imagens",
+          "fonte": "https://nextjs.org/docs"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Estilização com CSS-in-JS e utilitários",
+          "palavras_chave": [
+            "Styled Components",
+            "Tailwind CSS",
+            "temas",
+            "design tokens",
+            "reutilização de estilos"
+          ],
+          "descricao_original": "Styled Components, Tailwind CSS, temas, design tokens, reutilização de estilos",
+          "fonte": "https://styled-components.com/docs"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Gerenciamento de estado",
+          "palavras_chave": [
+            "Context API",
+            "Redux",
+            "estado global",
+            "estado de servidor",
+            "TanStack Query",
+            "cache de dados"
+          ],
+          "descricao_original": "Context API, Redux, estado global, estado de servidor, TanStack Query, cache de dados",
+          "fonte": "https://redux.js.org/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Consumo de APIs",
+          "palavras_chave": [
+            "fetch",
+            "REST",
+            "tratamento de erros",
+            "loading states",
+            "autenticação",
+            "CORS"
+          ],
+          "descricao_original": "fetch, REST, tratamento de erros, loading states, autenticação, CORS",
+          "fonte": "https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Acessibilidade web",
+          "palavras_chave": [
+            "WCAG",
+            "ARIA",
+            "navegação por teclado",
+            "contraste",
+            "leitores de tela"
+          ],
+          "descricao_original": "WCAG, ARIA, navegação por teclado, contraste, leitores de tela",
+          "fonte": "https://www.w3.org/WAI/standards-guidelines/wcag/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Desempenho web",
+          "palavras_chave": [
+            "Core Web Vitals",
+            "lazy loading",
+            "code splitting",
+            "otimização de assets",
+            "Lighthouse"
+          ],
+          "descricao_original": "Core Web Vitals, lazy loading, code splitting, otimização de assets, Lighthouse",
+          "fonte": "https://web.dev/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Testes de front-end",
+          "palavras_chave": [
+            "Jest",
+            "Testing Library",
+            "testes de componentes",
+            "testes end-to-end",
+            "Playwright"
+          ],
+          "descricao_original": "Jest, Testing Library, testes de componentes, testes end-to-end, Playwright",
+          "fonte": "https://jestjs.io/docs/getting-started"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Testes end-to-end",
+          "palavras_chave": [
+            "Playwright",
+            "fluxos de usuário",
+            "automação de navegador",
+            "testes de regressão visual"
+          ],
+          "descricao_original": "Playwright, fluxos de usuário, automação de navegador, testes de regressão visual",
+          "fonte": "https://playwright.dev/docs/intro"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Ferramentas de build",
+          "palavras_chave": [
+            "Vite",
+            "bundlers",
+            "npm",
+            "gerenciamento de pacotes",
+            "transpilação",
+            "variáveis de ambiente"
+          ],
+          "descricao_original": "Vite, bundlers, npm, gerenciamento de pacotes, transpilação, variáveis de ambiente",
+          "fonte": "https://vite.dev/guide/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Controle de versão com Git",
+          "palavras_chave": [
+            "commits",
+            "branches",
+            "pull requests",
+            "resolução de conflitos",
+            "fluxo colaborativo"
+          ],
+          "descricao_original": "commits, branches, pull requests, resolução de conflitos, fluxo colaborativo",
+          "fonte": "https://git-scm.com/doc"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Design de interfaces com Figma",
+          "palavras_chave": [
+            "protótipos",
+            "componentes",
+            "auto layout",
+            "handoff de design",
+            "design system"
+          ],
+          "descricao_original": "protótipos, componentes, auto layout, handoff de design, design system",
+          "fonte": "https://help.figma.com/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Design systems e componentização",
+          "palavras_chave": [
+            "biblioteca de componentes",
+            "padronização visual",
+            "Storybook",
+            "documentação de UI"
+          ],
+          "descricao_original": "biblioteca de componentes, padronização visual, Storybook, documentação de UI",
+          "fonte": "https://atomicdesign.bradfrost.com/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Segurança no front-end",
+          "palavras_chave": [
+            "XSS",
+            "CSRF",
+            "sanitização",
+            "armazenamento seguro de tokens",
+            "Content Security Policy"
+          ],
+          "descricao_original": "XSS, CSRF, sanitização, armazenamento seguro de tokens, Content Security Policy",
+          "fonte": "https://developer.mozilla.org/en-US/docs/Web/Security"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Ferramentas de desenvolvedor do navegador",
+          "palavras_chave": [
+            "DevTools",
+            "inspeção de DOM",
+            "rede",
+            "performance",
+            "depuração de JavaScript"
+          ],
+          "descricao_original": "DevTools, inspeção de DOM, rede, performance, depuração de JavaScript",
+          "fonte": "https://developer.chrome.com/docs/devtools"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Internacionalização e SEO técnico",
+          "palavras_chave": [
+            "i18n",
+            "metadados",
+            "sitemap",
+            "Open Graph",
+            "renderização para buscadores"
+          ],
+          "descricao_original": "i18n, metadados, sitemap, Open Graph, renderização para buscadores",
+          "fonte": "https://developer.mozilla.org/en-US/docs/Glossary/SEO"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Pensamento analítico",
+          "palavras_chave": [
+            "análise de comportamento do usuário",
+            "leitura de métricas de desempenho",
+            "decomposição de interfaces"
+          ],
+          "descricao_original": "análise de comportamento do usuário, leitura de métricas de desempenho, decomposição de interfaces",
+          "fonte": "https://www.computer.org/education/bodies-of-knowledge/software-engineering"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Resolução de problemas",
+          "palavras_chave": [
+            "depuração de layout",
+            "diagnóstico de bugs visuais",
+            "compatibilidade entre navegadores"
+          ],
+          "descricao_original": "depuração de layout, diagnóstico de bugs visuais, compatibilidade entre navegadores",
+          "fonte": "https://www.computer.org/education/bodies-of-knowledge/software-engineering"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Atenção aos detalhes",
+          "palavras_chave": [
+            "alinhamento visual pixel a pixel",
+            "estados de interface",
+            "consistência de componentes",
+            "revisão de design"
+          ],
+          "descricao_original": "alinhamento visual pixel a pixel, estados de interface, consistência de componentes, revisão de design",
+          "fonte": "https://www.computer.org/education/bodies-of-knowledge/software-engineering"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Comunicação técnica",
+          "palavras_chave": [
+            "comunicação com designers e back-end",
+            "documentação de componentes",
+            "descrição de pull requests"
+          ],
+          "descricao_original": "comunicação com designers e back-end, documentação de componentes, descrição de pull requests",
+          "fonte": "https://www.nngroup.com/articles/"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Trabalho em equipe",
+          "palavras_chave": [
+            "colaboração com UX",
+            "back-end e QA",
+            "code review",
+            "trabalho em squads"
+          ],
+          "descricao_original": "colaboração com UX, back-end e QA, code review, trabalho em squads",
+          "fonte": "https://rework.withgoogle.com/"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Ética e responsabilidade",
+          "palavras_chave": [
+            "acessibilidade",
+            "inclusão",
+            "privacidade de dados do usuário",
+            "responsabilidade com experiência digital"
+          ],
+          "descricao_original": "acessibilidade, inclusão, privacidade de dados do usuário, responsabilidade com experiência digital",
+          "fonte": "https://www.acm.org/code-of-ethics"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Adaptabilidade",
+          "palavras_chave": [
+            "evolução rápida de frameworks",
+            "novas ferramentas",
+            "mudanças de design",
+            "metodologias ágeis"
+          ],
+          "descricao_original": "evolução rápida de frameworks, novas ferramentas, mudanças de design, metodologias ágeis",
+          "fonte": "https://agilemanifesto.org/"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Gestão de prioridades",
+          "palavras_chave": [
+            "priorização de tarefas de interface",
+            "planejamento de entregas",
+            "gestão do tempo"
+          ],
+          "descricao_original": "priorização de tarefas de interface, planejamento de entregas, gestão do tempo",
+          "fonte": "https://scrumguides.org/"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Aprendizagem contínua",
+          "palavras_chave": [
+            "acompanhamento de novidades do ecossistema JavaScript",
+            "estudo autônomo",
+            "projetos práticos"
+          ],
+          "descricao_original": "acompanhamento de novidades do ecossistema JavaScript, estudo autônomo, projetos práticos",
+          "fonte": "https://www.computer.org/education/bodies-of-knowledge/software-engineering"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Pensamento crítico",
+          "palavras_chave": [
+            "avaliação de bibliotecas",
+            "decisões de arquitetura de UI",
+            "questionamento de soluções"
+          ],
+          "descricao_original": "avaliação de bibliotecas, decisões de arquitetura de UI, questionamento de soluções",
+          "fonte": "https://www.computer.org/education/bodies-of-knowledge/software-engineering"
+        }
+      ]
+    },
+    {
+      "id": "ia_machine_learning",
+      "nome": "Inteligência Artificial e Machine Learning",
+      "descricao": "Inteligência artificial, aprendizado de máquina e aplicações",
+      "arquivo_origem": "Base_conhecimento_IA_ML.xlsx",
+      "total_skills": 30,
+      "total_hard_skills": 20,
+      "total_soft_skills": 10,
+      "skills": [
+        {
+          "categoria": "hard_skill",
+          "skill": "Python para ciência de dados",
+          "palavras_chave": [
+            "sintaxe",
+            "bibliotecas científicas",
+            "ambientes virtuais",
+            "notebooks",
+            "boas práticas"
+          ],
+          "descricao_original": "sintaxe, bibliotecas científicas, ambientes virtuais, notebooks, boas práticas",
+          "fonte": "https://docs.python.org/3/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Matemática para machine learning",
+          "palavras_chave": [
+            "álgebra linear",
+            "cálculo",
+            "probabilidade",
+            "estatística",
+            "otimização"
+          ],
+          "descricao_original": "álgebra linear, cálculo, probabilidade, estatística, otimização",
+          "fonte": "https://d2l.ai/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "NumPy e Pandas",
+          "palavras_chave": [
+            "arrays",
+            "DataFrames",
+            "limpeza de dados",
+            "vetorização",
+            "manipulação de dados"
+          ],
+          "descricao_original": "arrays, DataFrames, limpeza de dados, vetorização, manipulação de dados",
+          "fonte": "https://numpy.org/doc/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Aprendizado supervisionado",
+          "palavras_chave": [
+            "regressão",
+            "classificação",
+            "árvores de decisão",
+            "SVM",
+            "florestas aleatórias",
+            "overfitting"
+          ],
+          "descricao_original": "regressão, classificação, árvores de decisão, SVM, florestas aleatórias, overfitting",
+          "fonte": "https://scikit-learn.org/stable/user_guide.html"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Aprendizado não supervisionado",
+          "palavras_chave": [
+            "clusterização",
+            "k-means",
+            "PCA",
+            "redução de dimensionalidade",
+            "detecção de anomalias"
+          ],
+          "descricao_original": "clusterização, k-means, PCA, redução de dimensionalidade, detecção de anomalias",
+          "fonte": "https://scikit-learn.org/stable/modules/clustering.html"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Engenharia de features e pré-processamento",
+          "palavras_chave": [
+            "normalização",
+            "codificação categórica",
+            "valores ausentes",
+            "seleção de variáveis",
+            "pipelines"
+          ],
+          "descricao_original": "normalização, codificação categórica, valores ausentes, seleção de variáveis, pipelines",
+          "fonte": "https://scikit-learn.org/stable/modules/preprocessing.html"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Avaliação de modelos",
+          "palavras_chave": [
+            "métricas",
+            "validação cruzada",
+            "matriz de confusão",
+            "ROC AUC",
+            "viés e variância"
+          ],
+          "descricao_original": "métricas, validação cruzada, matriz de confusão, ROC AUC, viés e variância",
+          "fonte": "https://scikit-learn.org/stable/modules/model_evaluation.html"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Redes neurais e deep learning",
+          "palavras_chave": [
+            "perceptron",
+            "backpropagation",
+            "camadas",
+            "funções de ativação",
+            "CNN",
+            "RNN",
+            "otimizadores"
+          ],
+          "descricao_original": "perceptron, backpropagation, camadas, funções de ativação, CNN, RNN, otimizadores",
+          "fonte": "https://www.tensorflow.org/learn"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "PyTorch",
+          "palavras_chave": [
+            "tensores",
+            "autograd",
+            "módulos",
+            "treinamento",
+            "DataLoaders",
+            "GPUs"
+          ],
+          "descricao_original": "tensores, autograd, módulos, treinamento, DataLoaders, GPUs",
+          "fonte": "https://pytorch.org/docs/stable/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Processamento de linguagem natural",
+          "palavras_chave": [
+            "tokenização",
+            "embeddings",
+            "transformers",
+            "classificação de texto",
+            "análise de sentimento"
+          ],
+          "descricao_original": "tokenização, embeddings, transformers, classificação de texto, análise de sentimento",
+          "fonte": "https://huggingface.co/learn/nlp-course"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Modelos de linguagem e IA generativa",
+          "palavras_chave": [
+            "LLMs",
+            "prompts",
+            "fine-tuning",
+            "RAG",
+            "geração de texto",
+            "avaliação de saídas"
+          ],
+          "descricao_original": "LLMs, prompts, fine-tuning, RAG, geração de texto, avaliação de saídas",
+          "fonte": "https://huggingface.co/docs"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Engenharia de prompts e APIs de LLM",
+          "palavras_chave": [
+            "prompts",
+            "contexto",
+            "ferramentas",
+            "saídas estruturadas",
+            "custos",
+            "limites"
+          ],
+          "descricao_original": "prompts, contexto, ferramentas, saídas estruturadas, custos, limites",
+          "fonte": "https://docs.claude.com/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Visão computacional",
+          "palavras_chave": [
+            "classificação de imagens",
+            "detecção de objetos",
+            "segmentação",
+            "OpenCV",
+            "CNNs"
+          ],
+          "descricao_original": "classificação de imagens, detecção de objetos, segmentação, OpenCV, CNNs",
+          "fonte": "https://docs.opencv.org/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Sistemas de recomendação",
+          "palavras_chave": [
+            "filtragem colaborativa",
+            "filtragem por conteúdo",
+            "similaridade",
+            "ranking",
+            "avaliação"
+          ],
+          "descricao_original": "filtragem colaborativa, filtragem por conteúdo, similaridade, ranking, avaliação",
+          "fonte": "https://developers.google.com/machine-learning/recommendation"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "MLOps",
+          "palavras_chave": [
+            "versionamento de modelos",
+            "experimentos",
+            "MLflow",
+            "deploy",
+            "monitoramento",
+            "reprodutibilidade"
+          ],
+          "descricao_original": "versionamento de modelos, experimentos, MLflow, deploy, monitoramento, reprodutibilidade",
+          "fonte": "https://mlflow.org/docs/latest/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Deploy de modelos",
+          "palavras_chave": [
+            "APIs de inferência",
+            "contêineres",
+            "ONNX",
+            "latência",
+            "escalabilidade",
+            "batch e tempo real"
+          ],
+          "descricao_original": "APIs de inferência, contêineres, ONNX, latência, escalabilidade, batch e tempo real",
+          "fonte": "https://onnx.ai/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Ética e IA responsável",
+          "palavras_chave": [
+            "viés",
+            "justiça",
+            "explicabilidade",
+            "transparência",
+            "privacidade",
+            "governança de IA"
+          ],
+          "descricao_original": "viés, justiça, explicabilidade, transparência, privacidade, governança de IA",
+          "fonte": "https://www.nist.gov/itl/ai-risk-management-framework"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Visualização e análise exploratória",
+          "palavras_chave": [
+            "gráficos",
+            "distribuições",
+            "correlações",
+            "hipóteses",
+            "Jupyter",
+            "comunicação de resultados"
+          ],
+          "descricao_original": "gráficos, distribuições, correlações, hipóteses, Jupyter, comunicação de resultados",
+          "fonte": "https://jupyter.org/documentation"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Aprendizado por reforço",
+          "palavras_chave": [
+            "agentes",
+            "ambientes",
+            "recompensas",
+            "políticas",
+            "Q-learning",
+            "exploração e exploitation"
+          ],
+          "descricao_original": "agentes, ambientes, recompensas, políticas, Q-learning, exploração e exploitation",
+          "fonte": "https://spinningup.openai.com/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Computação em nuvem e GPU para IA",
+          "palavras_chave": [
+            "treinamento em nuvem",
+            "instâncias com GPU",
+            "custos",
+            "armazenamento de datasets",
+            "permissões"
+          ],
+          "descricao_original": "treinamento em nuvem, instâncias com GPU, custos, armazenamento de datasets, permissões",
+          "fonte": "https://docs.aws.amazon.com/sagemaker/"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Pensamento analítico",
+          "palavras_chave": [
+            "interpretação de métricas",
+            "análise de dados",
+            "identificação de padrões",
+            "formulação de hipóteses"
+          ],
+          "descricao_original": "interpretação de métricas, análise de dados, identificação de padrões, formulação de hipóteses",
+          "fonte": "https://www.computer.org/education/bodies-of-knowledge/software-engineering"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Resolução de problemas",
+          "palavras_chave": [
+            "diagnóstico de modelos",
+            "análise de erros",
+            "depuração de pipelines",
+            "iteração de experimentos"
+          ],
+          "descricao_original": "diagnóstico de modelos, análise de erros, depuração de pipelines, iteração de experimentos",
+          "fonte": "https://www.computer.org/education/bodies-of-knowledge/software-engineering"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Atenção aos detalhes",
+          "palavras_chave": [
+            "validação de dados de treino",
+            "vazamento de dados",
+            "reprodutibilidade",
+            "revisão de experimentos"
+          ],
+          "descricao_original": "validação de dados de treino, vazamento de dados, reprodutibilidade, revisão de experimentos",
+          "fonte": "https://www.computer.org/education/bodies-of-knowledge/software-engineering"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Comunicação técnica",
+          "palavras_chave": [
+            "explicação de modelos para não técnicos",
+            "documentação de experimentos",
+            "apresentação de resultados"
+          ],
+          "descricao_original": "explicação de modelos para não técnicos, documentação de experimentos, apresentação de resultados",
+          "fonte": "https://rework.withgoogle.com/"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Trabalho em equipe",
+          "palavras_chave": [
+            "colaboração com dados",
+            "engenharia e negócio",
+            "revisão de experimentos",
+            "compartilhamento de conhecimento"
+          ],
+          "descricao_original": "colaboração com dados, engenharia e negócio, revisão de experimentos, compartilhamento de conhecimento",
+          "fonte": "https://rework.withgoogle.com/"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Ética e responsabilidade",
+          "palavras_chave": [
+            "viés",
+            "privacidade",
+            "uso responsável de IA",
+            "transparência",
+            "impacto social"
+          ],
+          "descricao_original": "viés, privacidade, uso responsável de IA, transparência, impacto social",
+          "fonte": "https://www.acm.org/code-of-ethics"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Adaptabilidade",
+          "palavras_chave": [
+            "evolução rápida da área",
+            "novos modelos",
+            "novas bibliotecas",
+            "adaptação de abordagens"
+          ],
+          "descricao_original": "evolução rápida da área, novos modelos, novas bibliotecas, adaptação de abordagens",
+          "fonte": "https://agilemanifesto.org/"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Gestão de prioridades",
+          "palavras_chave": [
+            "priorização de experimentos",
+            "custo e benefício",
+            "gestão de tempo de treino",
+            "tomada de decisão"
+          ],
+          "descricao_original": "priorização de experimentos, custo e benefício, gestão de tempo de treino, tomada de decisão",
+          "fonte": "https://scrumguides.org/"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Aprendizagem contínua",
+          "palavras_chave": [
+            "leitura de artigos científicos",
+            "cursos",
+            "competições",
+            "estudo autônomo",
+            "acompanhamento da pesquisa"
+          ],
+          "descricao_original": "leitura de artigos científicos, cursos, competições, estudo autônomo, acompanhamento da pesquisa",
+          "fonte": "https://arxiv.org/"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Pensamento crítico",
+          "palavras_chave": [
+            "avaliação de resultados",
+            "questionamento de benchmarks",
+            "validação de hipóteses",
+            "análise de limitações"
+          ],
+          "descricao_original": "avaliação de resultados, questionamento de benchmarks, validação de hipóteses, análise de limitações",
+          "fonte": "https://www.computer.org/education/bodies-of-knowledge/software-engineering"
+        }
+      ]
+    },
+    {
+      "id": "devops_cloud",
+      "nome": "DevOps e Cloud",
+      "descricao": "Automação, infraestrutura, entrega contínua e serviços em nuvem",
+      "arquivo_origem": "Base_conhecimento_DEVOPS_CLOUD.xlsx",
+      "total_skills": 30,
+      "total_hard_skills": 20,
+      "total_soft_skills": 10,
+      "skills": [
+        {
+          "categoria": "hard_skill",
+          "skill": "Linux e linha de comando",
+          "palavras_chave": [
+            "shell",
+            "permissões",
+            "processos",
+            "serviços",
+            "systemd",
+            "logs",
+            "gerenciamento de pacotes"
+          ],
+          "descricao_original": "shell, permissões, processos, serviços, systemd, logs, gerenciamento de pacotes",
+          "fonte": "https://docs.kernel.org/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Redes e protocolos",
+          "palavras_chave": [
+            "TCP/IP",
+            "DNS",
+            "HTTP",
+            "balanceamento de carga",
+            "firewalls",
+            "proxies",
+            "portas"
+          ],
+          "descricao_original": "TCP/IP, DNS, HTTP, balanceamento de carga, firewalls, proxies, portas",
+          "fonte": "https://developer.mozilla.org/en-US/docs/Web/HTTP"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Controle de versão e fluxos Git",
+          "palavras_chave": [
+            "branches",
+            "pull requests",
+            "estratégias de branching",
+            "GitOps",
+            "revisão de código"
+          ],
+          "descricao_original": "branches, pull requests, estratégias de branching, GitOps, revisão de código",
+          "fonte": "https://git-scm.com/doc"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Scripting e automação",
+          "palavras_chave": [
+            "Bash",
+            "Python",
+            "automação de tarefas",
+            "processamento de logs",
+            "scripts operacionais"
+          ],
+          "descricao_original": "Bash, Python, automação de tarefas, processamento de logs, scripts operacionais",
+          "fonte": "https://www.gnu.org/software/bash/manual/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Contêineres com Docker",
+          "palavras_chave": [
+            "Dockerfile",
+            "imagens",
+            "camadas",
+            "volumes",
+            "redes",
+            "docker compose",
+            "registries"
+          ],
+          "descricao_original": "Dockerfile, imagens, camadas, volumes, redes, docker compose, registries",
+          "fonte": "https://docs.docker.com/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Orquestração com Kubernetes",
+          "palavras_chave": [
+            "pods",
+            "deployments",
+            "services",
+            "ingress",
+            "ConfigMaps",
+            "secrets",
+            "escalonamento"
+          ],
+          "descricao_original": "pods, deployments, services, ingress, ConfigMaps, secrets, escalonamento",
+          "fonte": "https://kubernetes.io/docs/home/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Gerenciamento de pacotes com Helm",
+          "palavras_chave": [
+            "charts",
+            "releases",
+            "valores",
+            "templates",
+            "versionamento de deploys"
+          ],
+          "descricao_original": "charts, releases, valores, templates, versionamento de deploys",
+          "fonte": "https://helm.sh/docs/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Infraestrutura como código",
+          "palavras_chave": [
+            "Terraform",
+            "estado",
+            "módulos",
+            "provisionamento",
+            "reprodutibilidade",
+            "versionamento"
+          ],
+          "descricao_original": "Terraform, estado, módulos, provisionamento, reprodutibilidade, versionamento",
+          "fonte": "https://developer.hashicorp.com/terraform/docs"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Gerenciamento de configuração",
+          "palavras_chave": [
+            "Ansible",
+            "playbooks",
+            "idempotência",
+            "inventários",
+            "automação de servidores"
+          ],
+          "descricao_original": "Ansible, playbooks, idempotência, inventários, automação de servidores",
+          "fonte": "https://docs.ansible.com/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "CI/CD",
+          "palavras_chave": [
+            "pipelines",
+            "integração contínua",
+            "entrega contínua",
+            "GitHub Actions",
+            "GitLab CI",
+            "Jenkins"
+          ],
+          "descricao_original": "pipelines, integração contínua, entrega contínua, GitHub Actions, GitLab CI, Jenkins",
+          "fonte": "https://docs.github.com/actions"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "GitOps e entrega progressiva",
+          "palavras_chave": [
+            "Argo CD",
+            "deploy declarativo",
+            "canary",
+            "blue-green",
+            "rollbacks"
+          ],
+          "descricao_original": "Argo CD, deploy declarativo, canary, blue-green, rollbacks",
+          "fonte": "https://argo-cd.readthedocs.io/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Computação em nuvem AWS",
+          "palavras_chave": [
+            "EC2",
+            "S3",
+            "VPC",
+            "IAM",
+            "RDS",
+            "Lambda",
+            "serviços gerenciados"
+          ],
+          "descricao_original": "EC2, S3, VPC, IAM, RDS, Lambda, serviços gerenciados",
+          "fonte": "https://docs.aws.amazon.com/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Computação em nuvem Azure e GCP",
+          "palavras_chave": [
+            "máquinas virtuais",
+            "redes",
+            "identidade",
+            "serviços gerenciados",
+            "multicloud"
+          ],
+          "descricao_original": "máquinas virtuais, redes, identidade, serviços gerenciados, multicloud",
+          "fonte": "https://learn.microsoft.com/azure/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Arquitetura em nuvem",
+          "palavras_chave": [
+            "Well-Architected",
+            "alta disponibilidade",
+            "resiliência",
+            "escalabilidade",
+            "custos"
+          ],
+          "descricao_original": "Well-Architected, alta disponibilidade, resiliência, escalabilidade, custos",
+          "fonte": "https://docs.aws.amazon.com/wellarchitected/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Monitoramento e métricas",
+          "palavras_chave": [
+            "Prometheus",
+            "Grafana",
+            "alertas",
+            "SLIs",
+            "SLOs",
+            "dashboards"
+          ],
+          "descricao_original": "Prometheus, Grafana, alertas, SLIs, SLOs, dashboards",
+          "fonte": "https://prometheus.io/docs/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Observabilidade",
+          "palavras_chave": [
+            "logs",
+            "métricas",
+            "traces",
+            "OpenTelemetry",
+            "correlação de eventos",
+            "diagnóstico"
+          ],
+          "descricao_original": "logs, métricas, traces, OpenTelemetry, correlação de eventos, diagnóstico",
+          "fonte": "https://opentelemetry.io/docs/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Engenharia de confiabilidade (SRE)",
+          "palavras_chave": [
+            "SLOs",
+            "error budgets",
+            "postmortems",
+            "gestão de incidentes",
+            "toil",
+            "capacidade"
+          ],
+          "descricao_original": "SLOs, error budgets, postmortems, gestão de incidentes, toil, capacidade",
+          "fonte": "https://sre.google/books/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Segurança em DevOps (DevSecOps)",
+          "palavras_chave": [
+            "gestão de segredos",
+            "análise de dependências",
+            "scanning de imagens",
+            "SAST",
+            "políticas"
+          ],
+          "descricao_original": "gestão de segredos, análise de dependências, scanning de imagens, SAST, políticas",
+          "fonte": "https://csrc.nist.gov/pubs/sp/800/218/final"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Servidores web e proxies reversos",
+          "palavras_chave": [
+            "Nginx",
+            "balanceamento",
+            "TLS",
+            "cache",
+            "reverse proxy",
+            "configuração segura"
+          ],
+          "descricao_original": "Nginx, balanceamento, TLS, cache, reverse proxy, configuração segura",
+          "fonte": "https://nginx.org/en/docs/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Métricas de entrega e FinOps",
+          "palavras_chave": [
+            "métricas DORA",
+            "lead time",
+            "frequência de deploy",
+            "controle de custos em nuvem"
+          ],
+          "descricao_original": "métricas DORA, lead time, frequência de deploy, controle de custos em nuvem",
+          "fonte": "https://dora.dev/"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Pensamento analítico",
+          "palavras_chave": [
+            "análise de métricas",
+            "correlação de eventos",
+            "identificação de gargalos",
+            "avaliação de capacidade"
+          ],
+          "descricao_original": "análise de métricas, correlação de eventos, identificação de gargalos, avaliação de capacidade",
+          "fonte": "https://www.computer.org/education/bodies-of-knowledge/software-engineering"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Resolução de problemas",
+          "palavras_chave": [
+            "diagnóstico de incidentes",
+            "análise de causa raiz",
+            "troubleshooting",
+            "restauração de serviços"
+          ],
+          "descricao_original": "diagnóstico de incidentes, análise de causa raiz, troubleshooting, restauração de serviços",
+          "fonte": "https://www.computer.org/education/bodies-of-knowledge/software-engineering"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Atenção aos detalhes",
+          "palavras_chave": [
+            "revisão de configurações",
+            "validação de pipelines",
+            "verificação de mudanças",
+            "análise de logs"
+          ],
+          "descricao_original": "revisão de configurações, validação de pipelines, verificação de mudanças, análise de logs",
+          "fonte": "https://www.computer.org/education/bodies-of-knowledge/software-engineering"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Comunicação técnica",
+          "palavras_chave": [
+            "documentação de runbooks",
+            "comunicação de incidentes",
+            "postmortems",
+            "alinhamento com desenvolvimento"
+          ],
+          "descricao_original": "documentação de runbooks, comunicação de incidentes, postmortems, alinhamento com desenvolvimento",
+          "fonte": "https://rework.withgoogle.com/"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Trabalho em equipe",
+          "palavras_chave": [
+            "cultura DevOps",
+            "colaboração entre desenvolvimento e operações",
+            "plantões",
+            "coordenação de incidentes"
+          ],
+          "descricao_original": "cultura DevOps, colaboração entre desenvolvimento e operações, plantões, coordenação de incidentes",
+          "fonte": "https://rework.withgoogle.com/"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Ética e responsabilidade",
+          "palavras_chave": [
+            "responsabilidade por ambientes de produção",
+            "segurança",
+            "confidencialidade",
+            "gestão de acessos"
+          ],
+          "descricao_original": "responsabilidade por ambientes de produção, segurança, confidencialidade, gestão de acessos",
+          "fonte": "https://www.acm.org/code-of-ethics"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Adaptabilidade",
+          "palavras_chave": [
+            "novas ferramentas de infraestrutura",
+            "mudanças de provedores",
+            "evolução de práticas",
+            "resposta a mudanças"
+          ],
+          "descricao_original": "novas ferramentas de infraestrutura, mudanças de provedores, evolução de práticas, resposta a mudanças",
+          "fonte": "https://agilemanifesto.org/"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Gestão de prioridades",
+          "palavras_chave": [
+            "priorização de incidentes",
+            "impacto no negócio",
+            "criticidade",
+            "gestão do tempo sob pressão"
+          ],
+          "descricao_original": "priorização de incidentes, impacto no negócio, criticidade, gestão do tempo sob pressão",
+          "fonte": "https://scrumguides.org/"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Aprendizagem contínua",
+          "palavras_chave": [
+            "certificações",
+            "laboratórios práticos",
+            "acompanhamento do ecossistema cloud",
+            "estudo autônomo"
+          ],
+          "descricao_original": "certificações, laboratórios práticos, acompanhamento do ecossistema cloud, estudo autônomo",
+          "fonte": "https://www.computer.org/education/bodies-of-knowledge/software-engineering"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Pensamento crítico",
+          "palavras_chave": [
+            "avaliação de arquiteturas",
+            "questionamento de mudanças",
+            "análise de riscos",
+            "validação de soluções"
+          ],
+          "descricao_original": "avaliação de arquiteturas, questionamento de mudanças, análise de riscos, validação de soluções",
+          "fonte": "https://www.computer.org/education/bodies-of-knowledge/software-engineering"
+        }
+      ]
+    },
+    {
+      "id": "qa",
+      "nome": "Quality Assurance (QA)",
+      "descricao": "Qualidade de software, testes e prevenção de defeitos",
+      "arquivo_origem": "Base_conhecimento_QA.xlsx",
+      "total_skills": 30,
+      "total_hard_skills": 20,
+      "total_soft_skills": 10,
+      "skills": [
+        {
+          "categoria": "hard_skill",
+          "skill": "Fundamentos de teste de software",
+          "palavras_chave": [
+            "níveis de teste",
+            "tipos de teste",
+            "casos de teste",
+            "defeitos",
+            "ciclo de vida de testes"
+          ],
+          "descricao_original": "níveis de teste, tipos de teste, casos de teste, defeitos, ciclo de vida de testes",
+          "fonte": "https://www.istqb.org/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Técnicas de projeto de testes",
+          "palavras_chave": [
+            "partição de equivalência",
+            "valor limite",
+            "tabela de decisão",
+            "teste exploratório"
+          ],
+          "descricao_original": "partição de equivalência, valor limite, tabela de decisão, teste exploratório",
+          "fonte": "https://www.istqb.org/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Planejamento e estratégia de testes",
+          "palavras_chave": [
+            "plano de testes",
+            "escopo",
+            "riscos",
+            "critérios de entrada e saída",
+            "pirâmide de testes"
+          ],
+          "descricao_original": "plano de testes, escopo, riscos, critérios de entrada e saída, pirâmide de testes",
+          "fonte": "https://martinfowler.com/articles/practical-test-pyramid.html"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Gestão de defeitos",
+          "palavras_chave": [
+            "reporte de bugs",
+            "severidade",
+            "prioridade",
+            "reprodução",
+            "rastreabilidade",
+            "Jira"
+          ],
+          "descricao_original": "reporte de bugs, severidade, prioridade, reprodução, rastreabilidade, Jira",
+          "fonte": "https://www.atlassian.com/software/jira/guides"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Testes de API",
+          "palavras_chave": [
+            "Postman",
+            "REST",
+            "status codes",
+            "contratos",
+            "validação de respostas",
+            "coleções"
+          ],
+          "descricao_original": "Postman, REST, status codes, contratos, validação de respostas, coleções",
+          "fonte": "https://learning.postman.com/docs/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Automação de testes web",
+          "palavras_chave": [
+            "Selenium",
+            "Playwright",
+            "Cypress",
+            "seletores",
+            "esperas",
+            "Page Object"
+          ],
+          "descricao_original": "Selenium, Playwright, Cypress, seletores, esperas, Page Object",
+          "fonte": "https://playwright.dev/docs/intro"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Cypress",
+          "palavras_chave": [
+            "testes end-to-end",
+            "comandos",
+            "intercepts",
+            "fixtures",
+            "execução em CI"
+          ],
+          "descricao_original": "testes end-to-end, comandos, intercepts, fixtures, execução em CI",
+          "fonte": "https://docs.cypress.io/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Selenium WebDriver",
+          "palavras_chave": [
+            "navegadores",
+            "seletores",
+            "esperas explícitas",
+            "grid",
+            "automação de interface"
+          ],
+          "descricao_original": "navegadores, seletores, esperas explícitas, grid, automação de interface",
+          "fonte": "https://www.selenium.dev/documentation/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Testes unitários",
+          "palavras_chave": [
+            "JUnit",
+            "pytest",
+            "mocks",
+            "asserts",
+            "isolamento",
+            "cobertura de código"
+          ],
+          "descricao_original": "JUnit, pytest, mocks, asserts, isolamento, cobertura de código",
+          "fonte": "https://docs.pytest.org/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Desenvolvimento orientado a testes e BDD",
+          "palavras_chave": [
+            "TDD",
+            "BDD",
+            "Gherkin",
+            "Cucumber",
+            "especificação por exemplo",
+            "critérios de aceite"
+          ],
+          "descricao_original": "TDD, BDD, Gherkin, Cucumber, especificação por exemplo, critérios de aceite",
+          "fonte": "https://cucumber.io/docs/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Testes de desempenho",
+          "palavras_chave": [
+            "carga",
+            "estresse",
+            "JMeter",
+            "k6",
+            "tempo de resposta",
+            "vazão",
+            "gargalos"
+          ],
+          "descricao_original": "carga, estresse, JMeter, k6, tempo de resposta, vazão, gargalos",
+          "fonte": "https://grafana.com/docs/k6/latest/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Testes de segurança",
+          "palavras_chave": [
+            "OWASP Top 10",
+            "validação de entradas",
+            "autenticação",
+            "testes de vulnerabilidades"
+          ],
+          "descricao_original": "OWASP Top 10, validação de entradas, autenticação, testes de vulnerabilidades",
+          "fonte": "https://owasp.org/www-project-web-security-testing-guide/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Testes de acessibilidade",
+          "palavras_chave": [
+            "WCAG",
+            "leitores de tela",
+            "navegação por teclado",
+            "contraste",
+            "auditorias"
+          ],
+          "descricao_original": "WCAG, leitores de tela, navegação por teclado, contraste, auditorias",
+          "fonte": "https://www.w3.org/WAI/test-evaluate/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Testes mobile",
+          "palavras_chave": [
+            "emuladores",
+            "dispositivos reais",
+            "Appium",
+            "compatibilidade",
+            "usabilidade mobile"
+          ],
+          "descricao_original": "emuladores, dispositivos reais, Appium, compatibilidade, usabilidade mobile",
+          "fonte": "https://appium.io/docs/en/latest/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Testes de regressão e automação em CI",
+          "palavras_chave": [
+            "pipelines",
+            "execução contínua",
+            "testes estáveis",
+            "relatórios",
+            "flaky tests"
+          ],
+          "descricao_original": "pipelines, execução contínua, testes estáveis, relatórios, flaky tests",
+          "fonte": "https://docs.github.com/actions"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "SQL para testes",
+          "palavras_chave": [
+            "consultas de validação",
+            "massa de dados",
+            "integridade",
+            "verificação de persistência"
+          ],
+          "descricao_original": "consultas de validação, massa de dados, integridade, verificação de persistência",
+          "fonte": "https://www.postgresql.org/docs/current/sql.html"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Controle de versão com Git",
+          "palavras_chave": [
+            "branches",
+            "commits",
+            "pull requests",
+            "versionamento de testes automatizados"
+          ],
+          "descricao_original": "branches, commits, pull requests, versionamento de testes automatizados",
+          "fonte": "https://git-scm.com/doc"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Metodologias ágeis para QA",
+          "palavras_chave": [
+            "Scrum",
+            "Kanban",
+            "critérios de aceite",
+            "definição de pronto",
+            "participação em cerimônias"
+          ],
+          "descricao_original": "Scrum, Kanban, critérios de aceite, definição de pronto, participação em cerimônias",
+          "fonte": "https://scrumguides.org/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Qualidade de software e normas",
+          "palavras_chave": [
+            "modelo de qualidade",
+            "características de qualidade",
+            "métricas",
+            "ISO 25010"
+          ],
+          "descricao_original": "modelo de qualidade, características de qualidade, métricas, ISO 25010",
+          "fonte": "https://iso25000.com/index.php/en/iso-25000-standards/iso-25010"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Massa de dados e ambientes de teste",
+          "palavras_chave": [
+            "dados de teste",
+            "mascaramento",
+            "ambientes isolados",
+            "contêineres",
+            "mocks de serviços"
+          ],
+          "descricao_original": "dados de teste, mascaramento, ambientes isolados, contêineres, mocks de serviços",
+          "fonte": "https://docs.docker.com/"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Pensamento analítico",
+          "palavras_chave": [
+            "análise de requisitos",
+            "identificação de cenários de risco",
+            "correlação de falhas",
+            "interpretação de métricas de qualidade"
+          ],
+          "descricao_original": "análise de requisitos, identificação de cenários de risco, correlação de falhas, interpretação de métricas de qualidade",
+          "fonte": "https://www.computer.org/education/bodies-of-knowledge/software-engineering"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Resolução de problemas",
+          "palavras_chave": [
+            "investigação de defeitos",
+            "reprodução de falhas",
+            "análise de causa raiz",
+            "diagnóstico"
+          ],
+          "descricao_original": "investigação de defeitos, reprodução de falhas, análise de causa raiz, diagnóstico",
+          "fonte": "https://www.computer.org/education/bodies-of-knowledge/software-engineering"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Atenção aos detalhes",
+          "palavras_chave": [
+            "identificação de inconsistências",
+            "revisão de requisitos",
+            "verificação minuciosa de fluxos",
+            "casos extremos"
+          ],
+          "descricao_original": "identificação de inconsistências, revisão de requisitos, verificação minuciosa de fluxos, casos extremos",
+          "fonte": "https://www.computer.org/education/bodies-of-knowledge/software-engineering"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Comunicação técnica",
+          "palavras_chave": [
+            "reporte claro de bugs",
+            "documentação de testes",
+            "comunicação com desenvolvimento e produto"
+          ],
+          "descricao_original": "reporte claro de bugs, documentação de testes, comunicação com desenvolvimento e produto",
+          "fonte": "https://rework.withgoogle.com/"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Trabalho em equipe",
+          "palavras_chave": [
+            "colaboração com desenvolvedores e produto",
+            "refinamento de histórias",
+            "cultura de qualidade compartilhada"
+          ],
+          "descricao_original": "colaboração com desenvolvedores e produto, refinamento de histórias, cultura de qualidade compartilhada",
+          "fonte": "https://rework.withgoogle.com/"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Ética e responsabilidade",
+          "palavras_chave": [
+            "responsabilidade pela qualidade",
+            "honestidade nos relatórios",
+            "integridade profissional",
+            "imparcialidade"
+          ],
+          "descricao_original": "responsabilidade pela qualidade, honestidade nos relatórios, integridade profissional, imparcialidade",
+          "fonte": "https://www.acm.org/code-of-ethics"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Adaptabilidade",
+          "palavras_chave": [
+            "mudanças de escopo",
+            "novas ferramentas de teste",
+            "metodologias ágeis",
+            "adaptação a contextos"
+          ],
+          "descricao_original": "mudanças de escopo, novas ferramentas de teste, metodologias ágeis, adaptação a contextos",
+          "fonte": "https://agilemanifesto.org/"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Gestão de prioridades",
+          "palavras_chave": [
+            "priorização de testes por risco",
+            "gestão de prazos",
+            "impacto de defeitos",
+            "tomada de decisão"
+          ],
+          "descricao_original": "priorização de testes por risco, gestão de prazos, impacto de defeitos, tomada de decisão",
+          "fonte": "https://scrumguides.org/"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Aprendizagem contínua",
+          "palavras_chave": [
+            "certificações",
+            "novas ferramentas de automação",
+            "estudo autônomo",
+            "prática contínua"
+          ],
+          "descricao_original": "certificações, novas ferramentas de automação, estudo autônomo, prática contínua",
+          "fonte": "https://www.computer.org/education/bodies-of-knowledge/software-engineering"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Pensamento crítico",
+          "palavras_chave": [
+            "questionamento de requisitos",
+            "avaliação de cobertura",
+            "validação de hipóteses",
+            "análise de riscos"
+          ],
+          "descricao_original": "questionamento de requisitos, avaliação de cobertura, validação de hipóteses, análise de riscos",
+          "fonte": "https://www.computer.org/education/bodies-of-knowledge/software-engineering"
+        }
+      ]
+    },
+    {
+      "id": "ux_ui",
+      "nome": "UX/UI Design",
+      "descricao": "Experiência do usuário e design de interfaces",
+      "arquivo_origem": "Base_conhecimento_UX_UI.xlsx",
+      "total_skills": 30,
+      "total_hard_skills": 20,
+      "total_soft_skills": 10,
+      "skills": [
+        {
+          "categoria": "hard_skill",
+          "skill": "Fundamentos de UX",
+          "palavras_chave": [
+            "experiência do usuário",
+            "usabilidade",
+            "heurísticas",
+            "jornadas",
+            "necessidades do usuário"
+          ],
+          "descricao_original": "experiência do usuário, usabilidade, heurísticas, jornadas, necessidades do usuário",
+          "fonte": "https://www.nngroup.com/articles/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Pesquisa com usuários",
+          "palavras_chave": [
+            "entrevistas",
+            "questionários",
+            "observação",
+            "pesquisa qualitativa e quantitativa",
+            "insights"
+          ],
+          "descricao_original": "entrevistas, questionários, observação, pesquisa qualitativa e quantitativa, insights",
+          "fonte": "https://www.nngroup.com/articles/ux-research-cheat-sheet/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Personas e jornada do usuário",
+          "palavras_chave": [
+            "personas",
+            "mapa de empatia",
+            "jornada do usuário",
+            "pontos de dor",
+            "oportunidades"
+          ],
+          "descricao_original": "personas, mapa de empatia, jornada do usuário, pontos de dor, oportunidades",
+          "fonte": "https://www.nngroup.com/articles/journey-mapping-101/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Design Thinking",
+          "palavras_chave": [
+            "empatia",
+            "definição",
+            "ideação",
+            "prototipação",
+            "teste",
+            "processo iterativo"
+          ],
+          "descricao_original": "empatia, definição, ideação, prototipação, teste, processo iterativo",
+          "fonte": "https://www.designkit.org/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Arquitetura da informação",
+          "palavras_chave": [
+            "organização de conteúdo",
+            "navegação",
+            "card sorting",
+            "taxonomia",
+            "mapa do site"
+          ],
+          "descricao_original": "organização de conteúdo, navegação, card sorting, taxonomia, mapa do site",
+          "fonte": "https://www.nngroup.com/articles/ia-vs-navigation/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Wireframes e prototipação",
+          "palavras_chave": [
+            "wireframes de baixa e alta fidelidade",
+            "protótipos interativos",
+            "fluxos de tela"
+          ],
+          "descricao_original": "wireframes de baixa e alta fidelidade, protótipos interativos, fluxos de tela",
+          "fonte": "https://help.figma.com/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Figma",
+          "palavras_chave": [
+            "frames",
+            "componentes",
+            "variantes",
+            "auto layout",
+            "protótipos",
+            "colaboração",
+            "handoff"
+          ],
+          "descricao_original": "frames, componentes, variantes, auto layout, protótipos, colaboração, handoff",
+          "fonte": "https://help.figma.com/hc/en-us"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Design de interface visual",
+          "palavras_chave": [
+            "tipografia",
+            "cor",
+            "grid",
+            "espaçamento",
+            "hierarquia visual",
+            "consistência"
+          ],
+          "descricao_original": "tipografia, cor, grid, espaçamento, hierarquia visual, consistência",
+          "fonte": "https://m3.material.io/foundations"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Design systems",
+          "palavras_chave": [
+            "componentes",
+            "tokens de design",
+            "padrões",
+            "documentação",
+            "governança",
+            "reutilização"
+          ],
+          "descricao_original": "componentes, tokens de design, padrões, documentação, governança, reutilização",
+          "fonte": "https://atomicdesign.bradfrost.com/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Heurísticas de usabilidade",
+          "palavras_chave": [
+            "10 heurísticas de Nielsen",
+            "avaliação heurística",
+            "erros de usabilidade",
+            "severidade"
+          ],
+          "descricao_original": "10 heurísticas de Nielsen, avaliação heurística, erros de usabilidade, severidade",
+          "fonte": "https://www.nngroup.com/articles/ten-usability-heuristics/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Testes de usabilidade",
+          "palavras_chave": [
+            "testes moderados e não moderados",
+            "tarefas",
+            "métricas de usabilidade",
+            "análise de resultados"
+          ],
+          "descricao_original": "testes moderados e não moderados, tarefas, métricas de usabilidade, análise de resultados",
+          "fonte": "https://www.usability.gov/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Acessibilidade em design",
+          "palavras_chave": [
+            "WCAG",
+            "contraste",
+            "tamanho de alvos",
+            "design inclusivo",
+            "leitores de tela"
+          ],
+          "descricao_original": "WCAG, contraste, tamanho de alvos, design inclusivo, leitores de tela",
+          "fonte": "https://www.w3.org/WAI/standards-guidelines/wcag/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Design responsivo e mobile first",
+          "palavras_chave": [
+            "breakpoints",
+            "adaptação de layouts",
+            "grids fluidos",
+            "design para várias telas"
+          ],
+          "descricao_original": "breakpoints, adaptação de layouts, grids fluidos, design para várias telas",
+          "fonte": "https://web.dev/learn/design"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Diretrizes de plataformas",
+          "palavras_chave": [
+            "Material Design",
+            "Human Interface Guidelines",
+            "padrões nativos",
+            "componentes de plataforma"
+          ],
+          "descricao_original": "Material Design, Human Interface Guidelines, padrões nativos, componentes de plataforma",
+          "fonte": "https://developer.apple.com/design/human-interface-guidelines"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Princípios e leis de UX",
+          "palavras_chave": [
+            "lei de Fitts",
+            "lei de Hick",
+            "carga cognitiva",
+            "princípios da Gestalt",
+            "heurísticas"
+          ],
+          "descricao_original": "lei de Fitts, lei de Hick, carga cognitiva, princípios da Gestalt, heurísticas",
+          "fonte": "https://lawsofux.com/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Microinterações e animações",
+          "palavras_chave": [
+            "feedback",
+            "transições",
+            "estados",
+            "motion design",
+            "prototipação de interações"
+          ],
+          "descricao_original": "feedback, transições, estados, motion design, prototipação de interações",
+          "fonte": "https://m3.material.io/styles/motion/overview"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Escrita para UX (UX Writing)",
+          "palavras_chave": [
+            "microcopy",
+            "mensagens de erro",
+            "tom de voz",
+            "clareza",
+            "rótulos"
+          ],
+          "descricao_original": "microcopy, mensagens de erro, tom de voz, clareza, rótulos",
+          "fonte": "https://www.nngroup.com/articles/ux-writing-study-guide/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Métricas e análise de produto",
+          "palavras_chave": [
+            "métricas de UX",
+            "funis",
+            "testes A/B",
+            "analytics",
+            "HEART",
+            "taxa de conclusão"
+          ],
+          "descricao_original": "métricas de UX, funis, testes A/B, analytics, HEART, taxa de conclusão",
+          "fonte": "https://www.nngroup.com/articles/ux-metrics-and-roi/"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Colaboração entre design e desenvolvimento",
+          "palavras_chave": [
+            "handoff",
+            "especificações",
+            "design tokens",
+            "revisão de implementação",
+            "componentes"
+          ],
+          "descricao_original": "handoff, especificações, design tokens, revisão de implementação, componentes",
+          "fonte": "https://help.figma.com/hc/en-us"
+        },
+        {
+          "categoria": "hard_skill",
+          "skill": "Design sprint e metodologias ágeis",
+          "palavras_chave": [
+            "sprints de design",
+            "workshops",
+            "validação rápida",
+            "Lean UX",
+            "ciclos iterativos"
+          ],
+          "descricao_original": "sprints de design, workshops, validação rápida, Lean UX, ciclos iterativos",
+          "fonte": "https://www.gv.com/sprint/"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Pensamento analítico",
+          "palavras_chave": [
+            "análise de dados de pesquisa",
+            "síntese de insights",
+            "identificação de padrões de comportamento",
+            "interpretação de métricas"
+          ],
+          "descricao_original": "análise de dados de pesquisa, síntese de insights, identificação de padrões de comportamento, interpretação de métricas",
+          "fonte": "https://www.nngroup.com/articles/"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Resolução de problemas",
+          "palavras_chave": [
+            "definição do problema",
+            "ideação de soluções",
+            "avaliação de alternativas",
+            "iteração de design"
+          ],
+          "descricao_original": "definição do problema, ideação de soluções, avaliação de alternativas, iteração de design",
+          "fonte": "https://www.designkit.org/"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Atenção aos detalhes",
+          "palavras_chave": [
+            "alinhamento visual",
+            "consistência de componentes",
+            "revisão de fluxos",
+            "estados de interface"
+          ],
+          "descricao_original": "alinhamento visual, consistência de componentes, revisão de fluxos, estados de interface",
+          "fonte": "https://www.computer.org/education/bodies-of-knowledge/software-engineering"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Comunicação técnica",
+          "palavras_chave": [
+            "apresentação de design",
+            "defesa de decisões",
+            "documentação",
+            "comunicação com desenvolvimento e produto"
+          ],
+          "descricao_original": "apresentação de design, defesa de decisões, documentação, comunicação com desenvolvimento e produto",
+          "fonte": "https://www.nngroup.com/articles/"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Trabalho em equipe",
+          "palavras_chave": [
+            "colaboração com produto",
+            "desenvolvimento e pesquisa",
+            "workshops",
+            "co-criação"
+          ],
+          "descricao_original": "colaboração com produto, desenvolvimento e pesquisa, workshops, co-criação",
+          "fonte": "https://rework.withgoogle.com/"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Ética e responsabilidade",
+          "palavras_chave": [
+            "design inclusivo",
+            "privacidade",
+            "padrões enganosos",
+            "responsabilidade com o usuário"
+          ],
+          "descricao_original": "design inclusivo, privacidade, padrões enganosos, responsabilidade com o usuário",
+          "fonte": "https://www.acm.org/code-of-ethics"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Adaptabilidade",
+          "palavras_chave": [
+            "mudanças de requisitos",
+            "novas ferramentas",
+            "iteração baseada em feedback",
+            "tendências de design"
+          ],
+          "descricao_original": "mudanças de requisitos, novas ferramentas, iteração baseada em feedback, tendências de design",
+          "fonte": "https://agilemanifesto.org/"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Gestão de prioridades",
+          "palavras_chave": [
+            "priorização de problemas de usabilidade",
+            "escopo de design",
+            "gestão do tempo",
+            "tomada de decisão"
+          ],
+          "descricao_original": "priorização de problemas de usabilidade, escopo de design, gestão do tempo, tomada de decisão",
+          "fonte": "https://scrumguides.org/"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Aprendizagem contínua",
+          "palavras_chave": [
+            "estudo de tendências",
+            "análise de referências",
+            "cursos",
+            "prática de portfólio",
+            "estudo autônomo"
+          ],
+          "descricao_original": "estudo de tendências, análise de referências, cursos, prática de portfólio, estudo autônomo",
+          "fonte": "https://www.computer.org/education/bodies-of-knowledge/software-engineering"
+        },
+        {
+          "categoria": "soft_skill",
+          "skill": "Pensamento crítico",
+          "palavras_chave": [
+            "questionamento de premissas",
+            "validação com usuários",
+            "avaliação de evidências",
+            "análise de vieses"
+          ],
+          "descricao_original": "questionamento de premissas, validação com usuários, avaliação de evidências, análise de vieses",
+          "fonte": "https://www.nngroup.com/articles/"
+        }
+      ]
+    }
+  ]
+}

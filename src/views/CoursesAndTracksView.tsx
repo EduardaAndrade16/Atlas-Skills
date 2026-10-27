@@ -9,6 +9,7 @@ import {
   ChevronDown,
   ChevronRight,
   ArrowLeft,
+  ArrowRight,
   ExternalLink,
   BookOpen,
   Sparkles,
@@ -21,21 +22,29 @@ import {
   HelpCircle,
   Tag,
   GraduationCap,
+  RefreshCw,
+  AlertCircle,
+  Target,
+  Compass,
+  Award,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { aiApi, trackApi } from '../services/api';
+import { trackApi } from '../services/api';
 import {
   CourseMaterial,
-  PersonalizedLearningTrack,
   TrackActivity,
   TrackCategory,
   TrackCategoryKey,
   TrackModule,
 } from '../types';
 
-export const CoursesAndTracksView: React.FC = () => {
-  const { user } = useAuth();
-  const userId = user?.id || 0;
+interface CoursesAndTracksViewProps {
+  onNavigateToProfile?: () => void;
+}
+
+export const CoursesAndTracksView: React.FC<CoursesAndTracksViewProps> = ({ onNavigateToProfile }) => {
+  const { user, profile } = useAuth();
+  const userId = user?.id || 1;
 
   // View Mode: 'roadmap' (compact 4-step home) | 'category' (modules & activities)
   const [currentView, setCurrentView] = useState<'roadmap' | 'category'>('roadmap');
@@ -47,10 +56,19 @@ export const CoursesAndTracksView: React.FC = () => {
   const [modules, setModules] = useState<TrackModule[]>([]);
   const [expandedModules, setExpandedModules] = useState<Record<string, boolean>>({});
   const [progressMap, setProgressMap] = useState<Record<string, boolean>>({});
-  const [personalizedTracks, setPersonalizedTracks] = useState<PersonalizedLearningTrack[]>([]);
-  const [isGeneratingTrack, setIsGeneratingTrack] = useState(false);
-  const [generationError, setGenerationError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Profile readiness state (IA não deve gerar trilhas sem teste/habilidades respondidas)
+  const [requiresProfile, setRequiresProfile] = useState<boolean>(false);
+  const [profileStatus, setProfileStatus] = useState<any>(null);
+  const [hasGenerated, setHasGenerated] = useState<boolean>(false);
+
+  // Gemini AI Generation State
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generationError, setGenerationError] = useState<string | null>(null);
+  const [lastGeneratedAt, setLastGeneratedAt] = useState<string | null>(null);
+  const [userGoal, setUserGoal] = useState<string>('');
+  const [userArea, setUserArea] = useState<string>('');
 
   // Active Selected Activity Detail View
   const [selectedActivity, setSelectedActivity] = useState<TrackActivity | null>(null);
@@ -77,43 +95,61 @@ export const CoursesAndTracksView: React.FC = () => {
   const [courseDesc, setCourseDesc] = useState('');
   const [courseIsFree, setCourseIsFree] = useState(true);
   const [courseDuration, setCourseDuration] = useState('');
-  const [courseLevel, setCourseLevel] = useState('');
-  const [courseModality, setCourseModality] = useState('');
-  const [coursePrice, setCoursePrice] = useState('');
 
   // Toast feedback
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3000);
+    setTimeout(() => setToastMessage(null), 3500);
   };
 
-  // Load initial categories, modules, and user progress
+  // Load personalized tracks from API/Encrypted Storage
   const loadData = async () => {
     setLoading(true);
+    setGenerationError(null);
     try {
-      const cats = trackApi.getCategories();
-      setCategories(cats);
-      const adminModules = await trackApi.getModules();
-      const savedTracks = trackApi.getPersonalizedTracks(userId);
-      setPersonalizedTracks(savedTracks);
-      const allMods = [...adminModules, ...savedTracks.flatMap((track) => track.modules)];
-      setAllModules(allMods);
+      const res = await trackApi.getPersonalizedTracks();
 
-      const userProg = trackApi.getUserProgress(userId);
-      setProgressMap(userProg);
-
-      // Filter for current category
-      const currentCatMods = allMods.filter((m) => m.categoryKey === selectedCategoryKey);
-      setModules(currentCatMods);
-
-      // Expand first module by default if not set
-      if (currentCatMods.length > 0 && Object.keys(expandedModules).length === 0) {
-        setExpandedModules({ [currentCatMods[0].id]: true });
+      // Sem responder o teste de perfil e cadastrar habilidades, NÃO gera as trilhas
+      if (res && res.requiresProfile) {
+        setRequiresProfile(true);
+        setProfileStatus(res.profileStatus || null);
+        setHasGenerated(false);
+        setCategories([]);
+        setAllModules([]);
+        setLoading(false);
+        return;
       }
-    } catch (err) {
-      console.warn('Erro ao carregar trilhas:', err);
+
+      setRequiresProfile(false);
+      setProfileStatus(res?.profileStatus || null);
+
+      if (res && res.hasGenerated && res.tracks) {
+        setHasGenerated(true);
+        setCategories(res.tracks.categories || []);
+        setAllModules(res.tracks.modules || []);
+        setUserGoal(res.tracks.userGoal || profile?.careerGoal || '');
+        setUserArea(res.tracks.userArea || profile?.primaryArea || '');
+        setLastGeneratedAt(res.tracks.generatedAt || null);
+        setProgressMap(res.progress || {});
+
+        const currentCatMods = (res.tracks.modules || []).filter(
+          (m) => m.categoryKey === selectedCategoryKey
+        );
+        setModules(currentCatMods);
+
+        if (currentCatMods.length > 0 && Object.keys(expandedModules).length === 0) {
+          setExpandedModules({ [currentCatMods[0].id]: true });
+        }
+      } else {
+        // Perfil preenchido, mas ainda não gerou trilhas com Gemini
+        setHasGenerated(false);
+        setCategories([]);
+        setAllModules([]);
+      }
+    } catch (err: any) {
+      console.warn('Erro ao carregar dados das trilhas:', err);
     } finally {
       setLoading(false);
     }
@@ -121,7 +157,80 @@ export const CoursesAndTracksView: React.FC = () => {
 
   useEffect(() => {
     loadData();
-  }, [selectedCategoryKey, userId]);
+
+    // Sincroniza automaticamente quando o usuário cadastra habilidades no perfil
+    const handleDataChanged = () => {
+      loadData();
+    };
+    window.addEventListener('atlas_data_changed', handleDataChanged);
+    return () => window.removeEventListener('atlas_data_changed', handleDataChanged);
+  }, []);
+
+  // Update filtered modules when selectedCategoryKey or allModules changes
+  useEffect(() => {
+    const catMods = allModules.filter((m) => m.categoryKey === selectedCategoryKey);
+    setModules(catMods);
+    if (catMods.length > 0 && !expandedModules[catMods[0].id]) {
+      setExpandedModules((prev) => ({ ...prev, [catMods[0].id]: true }));
+    }
+  }, [selectedCategoryKey, allModules]);
+
+  // Handle Dynamic Gemini Generation
+  const handleGenerateTracks = async (isManualRefresh = true) => {
+    if (requiresProfile) {
+      if (onNavigateToProfile) onNavigateToProfile();
+      return;
+    }
+
+    setIsGenerating(true);
+    setGenerationError(null);
+
+    try {
+      const res = await trackApi.generatePersonalizedTracks();
+
+      if (res && res.requiresProfile) {
+        setRequiresProfile(true);
+        setProfileStatus(res.profileStatus);
+        setGenerationError(
+          res.message || 'Sem responder o teste de perfil, não é possível gerar as trilhas.'
+        );
+        return;
+      }
+
+      if (res && res.tracks) {
+        setHasGenerated(true);
+        setRequiresProfile(false);
+        setCategories(res.tracks.categories || []);
+        setAllModules(res.tracks.modules || []);
+        setUserGoal(res.tracks.userGoal || profile?.careerGoal || '');
+        setUserArea(res.tracks.userArea || profile?.primaryArea || '');
+        setLastGeneratedAt(res.tracks.generatedAt || new Date().toISOString());
+        setProgressMap(res.progress || {});
+
+        const currentCatMods = (res.tracks.modules || []).filter(
+          (m) => m.categoryKey === selectedCategoryKey
+        );
+        setModules(currentCatMods);
+
+        if (currentCatMods.length > 0) {
+          setExpandedModules({ [currentCatMods[0].id]: true });
+        }
+
+        if (isManualRefresh) {
+          showToast('Trilhas personalizadas geradas com sucesso pelo Gemini!');
+        }
+      }
+    } catch (err: any) {
+      console.error('Falha ao gerar trilhas personalizadas:', err);
+      setGenerationError(
+        err?.message ||
+          'Não foi possível conectar ao Gemini para gerar as trilhas. Você pode tentar novamente.'
+      );
+    } finally {
+      setIsGenerating(false);
+      setLoading(false);
+    }
+  };
 
   // Navigate to category screen
   const handleOpenCategory = (catKey: TrackCategoryKey) => {
@@ -150,59 +259,10 @@ export const CoursesAndTracksView: React.FC = () => {
     setProgressMap(updated);
 
     const isNowDone = updated[activityId];
-    showToast(isNowDone ? 'Atividade concluída!' : 'Atividade desmarcada.');
+    showToast(isNowDone ? 'Atividade concluída com sucesso!' : 'Atividade desmarcada.');
   };
 
-  const handleGenerateTrack = async () => {
-    setIsGeneratingTrack(true);
-    setGenerationError(null);
-    try {
-      if (!user) throw new Error('Entre na sua conta para gerar uma trilha personalizada.');
-      const draft = await aiApi.generateLearningTrack();
-      const generatedAt = new Date().toISOString();
-      const trackId = `gemini-${Date.now()}`;
-      const track: PersonalizedLearningTrack = {
-        id: trackId,
-        generatedAt,
-        goal: draft.goal,
-        competencies: draft.competencies,
-        modules: draft.modules.map((module, moduleIndex) => {
-          const moduleId = `${trackId}-module-${moduleIndex + 1}`;
-          return {
-            ...module,
-            id: moduleId,
-            isAiGenerated: true,
-            generatedAt,
-            goal: draft.goal,
-            competencies: draft.competencies,
-            activities: module.activities.map((activity, activityIndex) => ({
-              ...activity,
-              id: `${trackId}-activity-${moduleIndex + 1}-${activityIndex + 1}`,
-              moduleId,
-            })),
-          };
-        }),
-      };
-      trackApi.savePersonalizedTrack(user.id, track);
-      const savedTracks = [...personalizedTracks, track];
-      const adminModules = await trackApi.getModules();
-      const nextModules = [...adminModules, ...savedTracks.flatMap((saved) => saved.modules)];
-      setPersonalizedTracks(savedTracks);
-      setAllModules(nextModules);
-      const firstCategory = track.modules[0]?.categoryKey || selectedCategoryKey;
-      setSelectedCategoryKey(firstCategory);
-      setModules(nextModules.filter((module) => module.categoryKey === firstCategory));
-      setExpandedModules({ [track.modules[0].id]: true });
-      setCurrentView('category');
-      setSelectedActivity(null);
-    } catch (err) {
-      setGenerationError(err instanceof Error ? err.message : 'Não foi possível gerar a trilha.');
-    } finally {
-      setIsGeneratingTrack(false);
-    }
-  };
-
-  // Stats helper for any category key
+  // Real Stats helper for any category key (calculated from actual generated activities)
   const getCategoryProgress = (catKey: TrackCategoryKey) => {
     const catMods = allModules.filter((m) => m.categoryKey === catKey);
     let totalActs = 0;
@@ -221,9 +281,28 @@ export const CoursesAndTracksView: React.FC = () => {
     return { totalActs, completedActs, percent };
   };
 
-  // Current category stats
-  const currentCategory = categories.find((c) => c.key === selectedCategoryKey);
-  const latestPersonalizedTrack = personalizedTracks[personalizedTracks.length - 1];
+  // Overall progress across all 4 categories
+  const overallProgress = useMemo(() => {
+    let total = 0;
+    let completed = 0;
+    allModules.forEach((m) => {
+      (m.activities || []).forEach((a) => {
+        total++;
+        if (progressMap[a.id]) completed++;
+      });
+    });
+    const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
+    return { total, completed, percent };
+  }, [allModules, progressMap]);
+
+  // Current category
+  const currentCategory = categories.find((c) => c.key === selectedCategoryKey) || {
+    key: selectedCategoryKey,
+    title: selectedCategoryKey === 'hard-skills' ? 'Hard Skills' : selectedCategoryKey === 'soft-skills' ? 'Soft Skills' : selectedCategoryKey === 'linkedin' ? 'LinkedIn' : 'Currículo',
+    subtitle: 'Trilha de Aprendizagem',
+    description: 'Trilha personalizada de desenvolvimento de competências.',
+  };
+
   const currentCategoryStats = useMemo(() => {
     return getCategoryProgress(selectedCategoryKey);
   }, [allModules, selectedCategoryKey, progressMap]);
@@ -290,14 +369,14 @@ export const CoursesAndTracksView: React.FC = () => {
       await trackApi.updateActivity(editingActivity.id, {
         title: actTitle.trim(),
         whyLearn: actWhy.trim(),
-        whatYouWillLearn: items,
+        whatYouWillLearn: items.length > 0 ? items : ['Conteúdo prático para aplicação real.'],
       });
       showToast('Atividade atualizada!');
     } else if (targetModuleId) {
       await trackApi.addActivity(targetModuleId, {
         title: actTitle.trim(),
         whyLearn: actWhy.trim(),
-        whatYouWillLearn: items,
+        whatYouWillLearn: items.length > 0 ? items : ['Conteúdo prático para aplicação real.'],
       });
       showToast('Nova atividade adicionada!');
     }
@@ -325,13 +404,10 @@ export const CoursesAndTracksView: React.FC = () => {
     await trackApi.addCourse(targetActivityId, {
       title: courseTitle.trim(),
       platform: coursePlatform.trim(),
-      url: courseUrl.trim(),
-      description: courseDesc.trim(),
+      url: courseUrl.trim() || 'https://www.google.com',
+      description: courseDesc.trim() || 'Material recomendado para aprofundamento na atividade.',
       isFree: courseIsFree,
-      estimatedDuration: courseDuration.trim() || undefined,
-      level: courseLevel.trim() || undefined,
-      modality: courseModality.trim() || undefined,
-      price: coursePrice ? Number(coursePrice) : undefined,
+      estimatedDuration: courseDuration.trim() || 'Sob demanda',
       isDemo: false,
     });
 
@@ -342,12 +418,8 @@ export const CoursesAndTracksView: React.FC = () => {
     setCourseUrl('');
     setCourseDesc('');
     setCourseDuration('');
-    setCourseLevel('');
-    setCourseModality('');
-    setCoursePrice('');
     await loadData();
 
-    // Refresh selected activity if open
     const allMods = await trackApi.getModules(selectedCategoryKey);
     for (const m of allMods) {
       const match = m.activities.find((a) => a.id === targetActivityId);
@@ -375,190 +447,367 @@ export const CoursesAndTracksView: React.FC = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 pb-16 relative">
+    <div className="max-w-5xl mx-auto space-y-8 pb-16 relative">
       {/* Toast Feedback */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 bg-[#1E1E2A] border border-[#BC9EFD]/50 rounded-xl p-3.5 shadow-xl flex items-center gap-2.5 max-w-sm animate-fade-in text-xs text-[#F5F4F8]">
+        <div className="fixed bottom-6 right-6 z-50 bg-[#1E1E2A] border border-[#BC9EFD]/50 rounded-xl p-3.5 shadow-2xl flex items-center gap-2.5 max-w-sm animate-fade-in text-xs text-[#F5F4F8]">
           <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
           <span>{toastMessage}</span>
         </div>
       )}
 
       {/* ======================================================== */}
-      {/* 1. COMPACT ROADMAP HOME VIEW (NO BANNERS, NO LARGE CARDS) */}
+      {/* ======================================================== */}
+      {/* 1. COMPACT ROADMAP HOME VIEW                             */}
       {/* ======================================================== */}
       {currentView === 'roadmap' && (
-        <div className="py-4 sm:py-6 space-y-10 animate-fade-in">
-          {/* Acesso discreto à administração */}
-          <div className="flex justify-end">
-            <button
-              onClick={() => setAdminMode(!adminMode)}
-              className={`p-2 rounded-xl text-xs transition-colors flex items-center gap-1.5 border ${
-                adminMode
-                  ? 'bg-[#8B6BD9]/20 text-[#BC9EFD] border-[#BC9EFD]/40'
-                  : 'text-[#767487] hover:text-[#A7A5B4] border-transparent hover:border-[#2D2D40]'
-              }`}
-              title="Administração de conteúdos"
-            >
-              <Settings className="w-3.5 h-3.5" />
-              <span className="text-[11px] font-medium hidden sm:inline">
-                {adminMode ? 'Edição ativa' : 'Admin'}
-              </span>
-            </button>
-          </div>
-
-          <section className="rounded-2xl border border-[#2D2D40] bg-[#222230] p-5 sm:p-6 space-y-4">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-              <div className="space-y-1">
-                <div className="inline-flex items-center gap-2 text-xs font-semibold text-[#BC9EFD]">
-                  <Sparkles className="h-4 w-4" />
-                  Gemini · trilha personalizada
-                </div>
-                <h2 className="text-lg font-bold text-[#F5F4F8]">Aprenda em direção ao seu objetivo</h2>
-                <p className="max-w-2xl text-xs leading-relaxed text-[#A7A5B4]">
-                  A IA usa seu perfil, competências e histórico cadastrados, além dos materiais reais do catálogo.
-                  Dados de contato e links pessoais não são enviados.
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={handleGenerateTrack}
-                disabled={isGeneratingTrack || !user}
-                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-[#8B6BD9] px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-[#9D80E6] disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {isGeneratingTrack
-                  ? <><Sparkles className="h-4 w-4 animate-pulse" />Gerando trilha...</>
-                  : <><Sparkles className="h-4 w-4" />{latestPersonalizedTrack ? 'Gerar novamente' : 'Gerar minha trilha'}</>}
-              </button>
+        <div className="space-y-8 animate-fade-in">
+          {/* Loading State */}
+          {loading && (
+            <div className="rounded-2xl bg-[#1E1E2A] border border-[#2D2D40] p-12 text-center space-y-3">
+              <div className="w-8 h-8 border-2 border-[#BC9EFD] border-t-transparent rounded-full animate-spin mx-auto" />
+              <p className="text-xs text-[#A7A5B4]">Verificando competências cadastradas e trilhas pedagógicas...</p>
             </div>
-            {generationError && (
-              <div role="alert" className="rounded-xl border border-rose-800/70 bg-rose-950/30 p-3 text-xs text-rose-200">
-                {generationError}
+          )}
+
+          {/* ESTADO 1: SEM RESPONDER O TESTE DE PERFIL / HABILIDADES */}
+          {!loading && requiresProfile && (
+            <div className="space-y-6">
+              <div className="rounded-3xl bg-gradient-to-r from-[#201C2E] via-[#241F36] to-[#1E1B2B] border-2 border-[#BC9EFD]/40 p-6 sm:p-8 shadow-lg relative overflow-hidden">
+                <div className="absolute top-0 right-0 -mr-16 -mt-16 w-56 h-56 bg-[#BC9EFD]/10 rounded-full blur-3xl pointer-events-none" />
+                <div className="relative z-10 space-y-4 max-w-2xl">
+                  <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#8B6BD9]/20 border border-[#BC9EFD]/40 text-[#BC9EFD] text-xs font-semibold">
+                    <Sparkles className="w-3.5 h-3.5" />
+                    Google Gemini • Aguardando Dados Reais do Perfil
+                  </div>
+                  <h2 className="text-xl sm:text-2xl font-extrabold text-[#F5F4F8] tracking-tight">
+                    Responda suas habilidades no Perfil Profissional para gerar suas trilhas
+                  </h2>
+                  <p className="text-xs sm:text-sm text-[#D4CDE6] leading-relaxed">
+                    Para garantir que as trilhas sejam <strong>estritamente personalizadas</strong> e reflitam seu momento real sem dados fictícios, o <strong>Google Gemini</strong> precisa analisar seus objetivos de carreira, hard skills técnicas dominadas e soft skills comportamentais. Sem essas respostas no perfil, as trilhas não são geradas.
+                  </p>
+
+                  <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                    <button
+                      onClick={onNavigateToProfile}
+                      className="px-6 py-3.5 rounded-xl bg-gradient-to-r from-[#8B6BD9] to-[#BC9EFD] hover:from-[#7B5BC9] hover:to-[#AC8EED] text-[#1A1A24] hover:text-white font-extrabold text-xs transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer group"
+                    >
+                      <span>Ir para o Perfil Profissional e Cadastrar Habilidades</span>
+                      <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                    </button>
+                    <button
+                      onClick={() => loadData()}
+                      className="px-4 py-3.5 rounded-xl bg-[#242436] hover:bg-[#2D2D42] text-[#A7A5B4] hover:text-[#F5F4F8] border border-[#37374D] text-xs font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                    >
+                      <RefreshCw className="w-3.5 h-3.5" />
+                      <span>Verificar Atualizações</span>
+                    </button>
+                  </div>
+                </div>
               </div>
-            )}
-            {latestPersonalizedTrack ? (
-              <div className="rounded-xl border border-[#2D2D40] bg-[#1A1A24] p-4">
-                <p className="text-[10px] font-semibold uppercase tracking-wide text-[#A7A5B4]">
-                  Última trilha · {new Date(latestPersonalizedTrack.generatedAt).toLocaleDateString('pt-BR')}
-                </p>
-                <p className="mt-1 text-sm font-semibold text-[#F5F4F8]">{latestPersonalizedTrack.goal}</p>
-                {latestPersonalizedTrack.competencies.length > 0 && (
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {latestPersonalizedTrack.competencies.map((competency) => (
-                      <span key={competency} className="rounded-full border border-[#BC9EFD]/30 bg-[#8B6BD9]/10 px-2.5 py-1 text-[10px] text-[#D4CDE6]">
-                        {competency}
+
+              {/* Status Checklist Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div
+                  className={`p-5 rounded-2xl border transition-all ${
+                    profileStatus?.hasGoalOrArea
+                      ? 'bg-[#1E1E2A] border-emerald-500/40'
+                      : 'bg-[#1E1E2A] border-[#2D2D40]'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <Target className="w-5 h-5 text-[#BC9EFD]" />
+                    {profileStatus?.hasGoalOrArea ? (
+                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300">
+                        Preenchido
                       </span>
-                    ))}
+                    ) : (
+                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300">
+                        Pendente
+                      </span>
+                    )}
+                  </div>
+                  <h4 className="text-sm font-bold text-[#F5F4F8]">Área e Metas</h4>
+                  <p className="text-xs text-[#A7A5B4] mt-1">
+                    {profileStatus?.hasGoalOrArea
+                      ? `${profileStatus.primaryArea || profileStatus.careerGoal}`
+                      : 'Informe sua área ou meta profissional no Perfil'}
+                  </p>
+                </div>
+
+                <div
+                  className={`p-5 rounded-2xl border transition-all ${
+                    (profileStatus?.hardSkillsCount ?? 0) > 0
+                      ? 'bg-[#1E1E2A] border-emerald-500/40'
+                      : 'bg-[#1E1E2A] border-[#2D2D40]'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <Code2 className="w-5 h-5 text-[#BC9EFD]" />
+                    {(profileStatus?.hardSkillsCount ?? 0) > 0 ? (
+                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300">
+                        {profileStatus.hardSkillsCount} cadastrada(s)
+                      </span>
+                    ) : (
+                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300">
+                        Pendente
+                      </span>
+                    )}
+                  </div>
+                  <h4 className="text-sm font-bold text-[#F5F4F8]">Hard Skills</h4>
+                  <p className="text-xs text-[#A7A5B4] mt-1">
+                    {(profileStatus?.hardSkillsCount ?? 0) > 0
+                      ? 'Competências técnicas cadastradas com sucesso'
+                      : 'Adicione suas tecnologias e níveis de conhecimento'}
+                  </p>
+                </div>
+
+                <div
+                  className={`p-5 rounded-2xl border transition-all ${
+                    (profileStatus?.softSkillsCount ?? 0) > 0
+                      ? 'bg-[#1E1E2A] border-emerald-500/40'
+                      : 'bg-[#1E1E2A] border-[#2D2D40]'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <HeartHandshake className="w-5 h-5 text-[#BC9EFD]" />
+                    {(profileStatus?.softSkillsCount ?? 0) > 0 ? (
+                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300">
+                        {profileStatus.softSkillsCount} cadastrada(s)
+                      </span>
+                    ) : (
+                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300">
+                        Pendente
+                      </span>
+                    )}
+                  </div>
+                  <h4 className="text-sm font-bold text-[#F5F4F8]">Soft Skills</h4>
+                  <p className="text-xs text-[#A7A5B4] mt-1">
+                    {(profileStatus?.softSkillsCount ?? 0) > 0
+                      ? 'Competências comportamentais cadastradas'
+                      : 'Cadastre suas habilidades comportamentais e de liderança'}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ESTADO 2: PERFIL PREENCHIDO MAS TRILHAS AINDA NÃO GERADAS */}
+          {!loading && !requiresProfile && !hasGenerated && (
+            <div className="rounded-3xl bg-gradient-to-r from-[#201C2E] via-[#241F36] to-[#1E1B2B] border-2 border-[#BC9EFD]/50 p-6 sm:p-8 shadow-xl text-center space-y-4">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-bold">
+                <Sparkles className="w-3.5 h-3.5" />
+                Perfil Respondido com Sucesso!
+              </div>
+              <h3 className="text-xl sm:text-2xl font-extrabold text-[#F5F4F8]">
+                Tudo pronto para gerar suas trilhas com Google Gemini
+              </h3>
+              <p className="text-xs sm:text-sm text-[#D4CDE6] max-w-xl mx-auto leading-relaxed">
+                Identificamos suas competências cadastradas em <strong>{userArea || profile?.primaryArea || 'sua área'}</strong> e seu objetivo de <strong>{userGoal || profile?.careerGoal || 'especialização'}</strong>. Clique no botão abaixo para que o Gemini elabore as 4 trilhas hiperpersonalizadas para o seu perfil.
+              </p>
+              <div>
+                <button
+                  onClick={() => handleGenerateTracks(true)}
+                  disabled={isGenerating}
+                  className="px-6 py-3.5 rounded-xl bg-gradient-to-r from-[#8B6BD9] to-[#BC9EFD] hover:from-[#7B5BC9] hover:to-[#AC8EED] text-[#1A1A24] hover:text-white font-extrabold text-sm transition-all shadow-lg inline-flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                >
+                  <Sparkles className="w-4 h-4" />
+                  <span>{isGenerating ? 'Gerando com Gemini...' : 'Gerar 4 Trilhas Personalizadas com Gemini'}</span>
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ESTADO 3: TRILHAS GERADAS E PRONTAS PARA ESTUDO */}
+          {!loading && !requiresProfile && hasGenerated && (
+            <>
+              {/* AI Hero Banner with Target and Refresh Button */}
+              <div className="rounded-3xl bg-gradient-to-r from-[#201C2E] via-[#241F36] to-[#1E1B2B] border border-[#37324E] p-6 sm:p-7 shadow-lg relative overflow-hidden">
+                <div className="absolute top-0 right-0 -mr-16 -mt-16 w-56 h-56 bg-[#BC9EFD]/10 rounded-full blur-3xl pointer-events-none" />
+
+                <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5">
+                  <div className="space-y-1.5 min-w-0 max-w-2xl">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#8B6BD9]/20 border border-[#BC9EFD]/40 text-[#BC9EFD] text-xs font-semibold">
+                        <Sparkles className="w-3.5 h-3.5 text-[#BC9EFD]" />
+                        Trilhas Geradas com Google Gemini
+                      </span>
+                      {lastGeneratedAt && (
+                        <span className="text-[11px] text-[#A7A5B4]">
+                          Personalizado para suas competências cadastradas
+                        </span>
+                      )}
+                    </div>
+
+                    <h2 className="text-xl sm:text-2xl font-extrabold text-[#F5F4F8] tracking-tight">
+                      {userGoal ? `Rumo a: ${userGoal}` : 'Plano de Aprendizagem Personalizado'}
+                    </h2>
+
+                    <p className="text-xs sm:text-sm text-[#A7A5B4] leading-relaxed">
+                      Trilhas pedagógicas geradas individualmente com base nas suas competências cadastradas, nível de experiência e objetivos de carreira em <strong>{userArea || profile?.primaryArea || 'sua área'}</strong>.
+                    </p>
+                  </div>
+
+                  {/* Action Buttons & Overall Progress */}
+                  <div className="flex flex-col sm:flex-row md:flex-col lg:flex-row items-stretch sm:items-center gap-3 shrink-0">
+                    <button
+                      onClick={() => handleGenerateTracks(true)}
+                      disabled={isGenerating}
+                      className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#8B6BD9] to-[#BC9EFD] hover:from-[#7B5BC9] hover:to-[#AC8EED] text-[#1A1A24] hover:text-white font-extrabold text-xs transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                      title="Atualizar trilhas com os dados mais recentes do perfil"
+                    >
+                      <RefreshCw
+                        className={`w-3.5 h-3.5 ${isGenerating ? 'animate-spin' : ''}`}
+                      />
+                      <span>
+                        {isGenerating ? 'Gerando com Gemini...' : 'Atualizar Trilhas com IA'}
+                      </span>
+                    </button>
+
+                    <div className="bg-[#1A1A24] border border-[#2D2D40] rounded-xl px-3.5 py-2 flex items-center justify-between sm:justify-center gap-3 text-xs">
+                      <span className="text-[#A7A5B4] text-[11px]">Progresso Global:</span>
+                      <span className="font-mono font-bold text-[#BC9EFD]">
+                        {overallProgress.completed}/{overallProgress.total} ({overallProgress.percent}%)
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Error Banner with Retry */}
+                {generationError && (
+                  <div className="mt-4 p-3.5 rounded-xl bg-rose-950/40 border border-rose-800/60 text-rose-300 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-fade-in">
+                    <div className="flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
+                      <span>{generationError}</span>
+                    </div>
+                    <button
+                      onClick={() => handleGenerateTracks(true)}
+                      className="px-3 py-1 rounded-lg bg-rose-800/40 hover:bg-rose-700/60 text-white font-semibold text-xs border border-rose-700 transition-colors cursor-pointer shrink-0"
+                    >
+                      Tentar Novamente
+                    </button>
                   </div>
                 )}
               </div>
-            ) : (
-              <p className="rounded-xl border border-[#2D2D40] bg-[#1A1A24] p-4 text-xs text-[#A7A5B4]">
-                Nenhuma trilha personalizada foi gerada. Atualize seu objetivo e competências no perfil e gere uma nova trilha.
+            </>
+          )}
+
+          {/* AI Generating Animation Card */}
+          {isGenerating && (
+            <div className="rounded-2xl bg-[#1E1E2A] border border-[#BC9EFD]/40 p-6 text-center space-y-3 animate-pulse">
+              <div className="w-8 h-8 border-3 border-[#BC9EFD] border-t-transparent rounded-full animate-spin mx-auto" />
+              <h3 className="text-sm font-bold text-[#F5F4F8]">
+                O Google Gemini está analisando seu perfil profissional...
+              </h3>
+              <p className="text-xs text-[#A7A5B4] max-w-md mx-auto leading-relaxed">
+                Avaliando suas hard skills, soft skills, objetivos e histórico para montar 4 trilhas com módulos ordenados por pré-requisitos, atividades práticas e critérios de conclusão.
               </p>
-            )}
-          </section>
-
-          {/* Compact 4-Step Category Roadmap */}
-          <div className="pt-2">
-            {/* Desktop / Tablet: Horizontal Subtle Connected Path */}
-            <div className="hidden sm:block relative">
-              {/* Thin connecting line behind nodes */}
-              <div className="absolute top-7 left-12 right-12 h-[2px] bg-[#2D2D40] -z-0" />
-
-              <div className="grid grid-cols-4 gap-4 relative z-10">
-                {categories.map((cat, index) => {
-                  const Icon = getCategoryIcon(cat.key);
-                  const stats = getCategoryProgress(cat.key);
-                  const isStarted = stats.completedActs > 0;
-                  const isCompleted = stats.totalActs > 0 && stats.completedActs === stats.totalActs;
-
-                  return (
-                    <button
-                      key={cat.key}
-                      onClick={() => handleOpenCategory(cat.key)}
-                      className="group flex flex-col items-center text-center cursor-pointer focus:outline-none transition-all p-3 rounded-2xl hover:bg-[#1E1E2A]/40"
-                    >
-                      {/* Step Circle Node */}
-                      <div
-                        className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-200 border ${
-                          isCompleted
-                            ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300'
-                            : isStarted
-                            ? 'bg-[#8B6BD9]/20 border-[#BC9EFD] text-[#BC9EFD] shadow-sm shadow-[#8B6BD9]/20'
-                            : 'bg-[#1E1E2A] border-[#2D2D40] text-[#A7A5B4] group-hover:border-[#BC9EFD]/60 group-hover:text-[#BC9EFD] group-hover:scale-105'
-                        }`}
-                      >
-                        <Icon className="w-6 h-6" />
-                      </div>
-
-                      {/* Step Label */}
-                      <span className="text-sm font-semibold text-[#F5F4F8] group-hover:text-[#BC9EFD] transition-colors mt-3">
-                        {cat.title}
-                      </span>
-
-                      {/* Subtle Progress / Status Indicator */}
-                      <span className="text-[11px] text-[#A7A5B4] mt-1 font-mono">
-                        {stats.totalActs > 0
-                          ? isCompleted
-                            ? 'Concluída'
-                            : `${stats.completedActs}/${stats.totalActs} concluídas`
-                          : 'Disponível'}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
             </div>
+          )}
 
-            {/* Mobile: Vertical Compact Stepped Path */}
-            <div className="sm:hidden relative pl-6 space-y-6">
-              {/* Thin vertical connecting line */}
-              <div className="absolute left-[31px] top-4 bottom-4 w-[2px] bg-[#2D2D40] -z-0" />
-
-              {categories.map((cat, index) => {
+          {/* 4 Category Cards Grid (Apenas exibidos quando gerados) */}
+          {hasGenerated && categories.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {categories.map((cat) => {
                 const Icon = getCategoryIcon(cat.key);
                 const stats = getCategoryProgress(cat.key);
                 const isStarted = stats.completedActs > 0;
                 const isCompleted = stats.totalActs > 0 && stats.completedActs === stats.totalActs;
 
                 return (
-                  <button
+                  <div
                     key={cat.key}
                     onClick={() => handleOpenCategory(cat.key)}
-                    className="group w-full flex items-center gap-4 text-left cursor-pointer focus:outline-none p-2.5 rounded-xl hover:bg-[#1E1E2A]/50 transition-all relative z-10"
+                    className="rounded-2xl bg-[#1E1E2A] border border-[#2A2A3B] hover:border-[#8B6BD9]/60 hover:bg-[#222232] p-5 sm:p-6 transition-all duration-200 cursor-pointer group flex flex-col justify-between space-y-4 shadow-sm"
                   >
-                    {/* Step Node */}
-                    <div
-                      className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 border ${
-                        isCompleted
-                          ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300'
-                          : isStarted
-                          ? 'bg-[#8B6BD9]/20 border-[#BC9EFD] text-[#BC9EFD]'
-                          : 'bg-[#1E1E2A] border-[#2D2D40] text-[#A7A5B4] group-hover:border-[#BC9EFD] group-hover:text-[#BC9EFD]'
-                      }`}
-                    >
-                      <Icon className="w-5 h-5" />
-                    </div>
+                    <div className="space-y-3">
+                      {/* Top Row: Icon + Level Badge + Completed Badge */}
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2.5">
+                          <div
+                            className={`w-11 h-11 rounded-xl flex items-center justify-center transition-colors border ${
+                              isCompleted
+                                ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300'
+                                : isStarted
+                                ? 'bg-[#8B6BD9]/20 border-[#BC9EFD] text-[#BC9EFD]'
+                                : 'bg-[#1A1A24] border-[#2E2E42] text-[#A7A5B4] group-hover:text-[#BC9EFD] group-hover:border-[#BC9EFD]/40'
+                            }`}
+                          >
+                            <Icon className="w-5 h-5" />
+                          </div>
+                          <div>
+                            <span className="text-[10px] font-mono uppercase tracking-wider text-[#A7A5B4] block">
+                              {cat.subtitle || 'Trilha Personalizada'}
+                            </span>
+                            <h3 className="text-base font-bold text-[#F5F4F8] group-hover:text-[#BC9EFD] transition-colors leading-tight">
+                              {cat.title}
+                            </h3>
+                          </div>
+                        </div>
 
-                    {/* Step Info */}
-                    <div className="min-w-0 flex-1">
-                      <h3 className="text-sm font-semibold text-[#F5F4F8] group-hover:text-[#BC9EFD] transition-colors">
-                        {cat.title}
-                      </h3>
-                      <p className="text-xs text-[#A7A5B4] mt-0.5">
-                        {stats.totalActs > 0
-                          ? `${stats.completedActs} de ${stats.totalActs} atividades concluídas`
-                          : 'Explorar trilha'}
+                        {cat.estimatedLevel && (
+                          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#1A1A24] border border-[#2E2E42] text-[#BC9EFD] shrink-0">
+                            {cat.estimatedLevel}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Description */}
+                      <p className="text-xs text-[#A7A5B4] line-clamp-2 leading-relaxed">
+                        {cat.description}
                       </p>
+
+                      {/* Learning Objective Tag */}
+                      {cat.learningObjective && (
+                        <div className="p-2.5 rounded-xl bg-[#1A1A24] border border-[#2A2A3B] flex items-start gap-2 text-[11px] text-[#D4CDE6]">
+                          <Target className="w-3.5 h-3.5 text-[#BC9EFD] shrink-0 mt-0.5" />
+                          <span className="line-clamp-2">
+                            <strong>Objetivo:</strong> {cat.learningObjective}
+                          </span>
+                        </div>
+                      )}
                     </div>
 
-                    <ChevronRight className="w-4 h-4 text-[#767487] group-hover:text-[#BC9EFD] transition-transform group-hover:translate-x-0.5" />
-                  </button>
+                    {/* Bottom: Progress Bar and Navigation Button */}
+                    <div className="pt-3 border-t border-[#2A2A3B] space-y-2">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-[#A7A5B4] text-[11px]">Progresso Real:</span>
+                        <span className="font-mono font-semibold text-[#BC9EFD] text-[11px]">
+                          {stats.completedActs} de {stats.totalActs} atividades ({stats.percent}%)
+                        </span>
+                      </div>
+
+                      <div className="w-full bg-[#1A1A24] h-2 rounded-full overflow-hidden border border-[#2A2A3B]">
+                        <div
+                          className="h-full bg-gradient-to-r from-[#8B6BD9] to-[#BC9EFD] rounded-full transition-all duration-500 ease-out"
+                          style={{ width: `${stats.percent}%` }}
+                        />
+                      </div>
+
+                      <div className="pt-1 flex items-center justify-between">
+                        <span className="text-[11px] text-[#A7A5B4]">
+                          {isCompleted ? (
+                            <span className="text-emerald-400 font-semibold flex items-center gap-1">
+                              <CheckCircle2 className="w-3 h-3" /> Trilha 100% Concluída
+                            </span>
+                          ) : stats.totalActs > 0 ? (
+                            `${stats.totalActs - stats.completedActs} pendente(s)`
+                          ) : (
+                            'Acessar módulos'
+                          )}
+                        </span>
+
+                        <span className="text-xs font-semibold text-[#BC9EFD] flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                          <span>Ver Módulos</span>
+                          <ChevronRight className="w-3.5 h-3.5" />
+                        </span>
+                      </div>
+                    </div>
+                  </div>
                 );
               })}
             </div>
-          </div>
+          )}
         </div>
       )}
 
@@ -568,114 +817,117 @@ export const CoursesAndTracksView: React.FC = () => {
       {currentView === 'category' && currentCategory && (
         <div className="space-y-6 animate-fade-in">
           {/* Top Bar with Clean Back Button and Category Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-[#2D2D40]/60">
-            <div>
-              <button
-                onClick={() => setCurrentView('roadmap')}
-                className="inline-flex items-center gap-1.5 text-xs text-[#A7A5B4] hover:text-[#BC9EFD] font-medium transition-colors mb-2 cursor-pointer"
-              >
-                <ArrowLeft className="w-3.5 h-3.5" />
-                <span>Voltar para Trilhas</span>
-              </button>
-
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#8B6BD9]/20 border border-[#BC9EFD]/40 text-[#BC9EFD] flex items-center justify-center">
-                  {(() => {
-                    const Icon = getCategoryIcon(currentCategory.key);
-                    return <Icon className="w-5 h-5" />;
-                  })()}
-                </div>
-                <div>
-                  <h2 className="text-xl sm:text-2xl font-bold text-[#F5F4F8]">
-                    {currentCategory.title}
-                  </h2>
-                  <p className="text-xs text-[#A7A5B4]">{currentCategory.subtitle}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Subtle Progress Stats & Admin Trigger */}
-            <div className="flex items-center gap-3">
-              <div className="text-right">
-                <span className="text-xs font-mono font-semibold text-[#BC9EFD]">
-                  {currentCategoryStats.completedActs} de {currentCategoryStats.totalActs} concluídas
-                </span>
-                <div className="w-28 bg-[#2D2D40] h-1.5 rounded-full overflow-hidden mt-1">
-                  <div
-                    className="h-full bg-gradient-to-r from-[#8B6BD9] to-[#BC9EFD] rounded-full transition-all duration-300"
-                    style={{ width: `${currentCategoryStats.percent}%` }}
-                  />
-                </div>
-              </div>
-
-              {adminMode && (
+          <div className="rounded-2xl bg-[#1E1E2A] border border-[#2D2D40] p-5 sm:p-6 space-y-4 shadow-sm">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
                 <button
-                  onClick={() => {
-                    setEditingModule(null);
-                    setModuleTitle('');
-                    setModuleDesc('');
-                    setModuleModalOpen(true);
-                  }}
-                  className="px-3 py-1.5 rounded-xl bg-[#8B6BD9] hover:bg-[#9D80E6] text-white text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm"
+                  onClick={() => setCurrentView('roadmap')}
+                  className="inline-flex items-center gap-1.5 text-xs text-[#A7A5B4] hover:text-[#BC9EFD] font-medium transition-colors mb-2.5 cursor-pointer group"
                 >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>Novo Módulo</span>
+                  <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1" />
+                  <span>Voltar para Visão Geral das Trilhas</span>
                 </button>
-              )}
-            </div>
-          </div>
 
-          {latestPersonalizedTrack && modules.some((module) => module.isAiGenerated) && (
-            <section className="rounded-xl border border-[#BC9EFD]/20 bg-[#8B6BD9]/10 p-4">
-              <p className="text-[10px] font-semibold uppercase tracking-wide text-[#BC9EFD]">Objetivo da trilha Gemini</p>
-              <p className="mt-1 text-sm font-semibold text-[#F5F4F8]">{latestPersonalizedTrack.goal}</p>
-              <p className="mt-1 text-[11px] text-[#A7A5B4]">
-                As trilhas anteriores e seu progresso foram mantidos.
-              </p>
-            </section>
-          )}
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-[#8B6BD9]/20 border border-[#BC9EFD]/40 text-[#BC9EFD] flex items-center justify-center shrink-0">
+                    {(() => {
+                      const Icon = getCategoryIcon(currentCategory.key);
+                      return <Icon className="w-5 h-5" />;
+                    })()}
+                  </div>
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h2 className="text-lg sm:text-xl font-bold text-[#F5F4F8]">
+                        {currentCategory.title}
+                      </h2>
+                      {currentCategory.estimatedLevel && (
+                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#1A1A24] border border-[#2E2E42] text-[#BC9EFD]">
+                          Nível: {currentCategory.estimatedLevel}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-[#A7A5B4] mt-0.5">
+                      {currentCategory.subtitle}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Progress Box & AI Refresh */}
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
+                <button
+                  onClick={() => handleGenerateTracks(true)}
+                  disabled={isGenerating}
+                  className="px-3 py-1.5 rounded-xl bg-[#242436] hover:bg-[#2E2E44] text-[#BC9EFD] hover:text-white border border-[#37374D] text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50"
+                  title="Regerar esta trilha com Gemini"
+                >
+                  <RefreshCw
+                    className={`w-3.5 h-3.5 ${isGenerating ? 'animate-spin' : ''}`}
+                  />
+                  <span>Atualizar Trilha com IA</span>
+                </button>
+
+                <div className="bg-[#1A1A24] border border-[#2D2D40] rounded-xl px-3.5 py-2 text-right">
+                  <span className="text-xs font-mono font-bold text-[#BC9EFD] block">
+                    {currentCategoryStats.completedActs} de {currentCategoryStats.totalActs} concluídas
+                  </span>
+                  <div className="w-32 bg-[#2D2D40] h-1.5 rounded-full overflow-hidden mt-1">
+                    <div
+                      className="h-full bg-gradient-to-r from-[#8B6BD9] to-[#BC9EFD] rounded-full transition-all duration-300"
+                      style={{ width: `${currentCategoryStats.percent}%` }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Learning Objective Box */}
+            {currentCategory.learningObjective && (
+              <div className="p-3.5 rounded-xl bg-[#1A1A24] border border-[#2A2A3B] flex items-start gap-2.5 text-xs text-[#D4CDE6]">
+                <Target className="w-4 h-4 text-[#BC9EFD] shrink-0 mt-0.5" />
+                <div>
+                  <strong className="text-[#BC9EFD] block">Objetivo Pedagógico da Trilha:</strong>
+                  <span>{currentCategory.learningObjective}</span>
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Modules Accordion List */}
           <div className="space-y-3">
-            {loading ? (
+            {loading || isGenerating ? (
               <div className="p-8 text-center text-xs text-[#A7A5B4]">
                 <div className="w-5 h-5 border-2 border-[#BC9EFD] border-t-transparent rounded-full animate-spin mx-auto mb-2" />
-                Carregando módulos...
+                Carregando módulos da trilha...
               </div>
             ) : modules.length === 0 ? (
-              <div className="rounded-2xl bg-[#1E1E2A] border border-[#2D2D40] p-10 text-center space-y-2">
+              <div className="rounded-2xl bg-[#1E1E2A] border border-[#2D2D40] p-10 text-center space-y-3">
                 <BookOpen className="w-8 h-8 text-[#8B6BD9] mx-auto opacity-60" />
                 <h4 className="text-sm font-semibold text-[#F5F4F8]">
-                  Nenhum conteúdo disponível nesta categoria
+                  Nenhum módulo gerado para esta trilha ainda
                 </h4>
                 <p className="text-xs text-[#A7A5B4] max-w-sm mx-auto">
-                  Gere uma trilha personalizada ou cadastre conteúdos reais no catálogo.
+                  Clique no botão abaixo para gerar módulos e atividades sob medida com o Google Gemini.
                 </p>
-                {adminMode && (
-                  <button
-                    onClick={() => {
-                      setEditingModule(null);
-                      setModuleTitle('');
-                      setModuleDesc('');
-                      setModuleModalOpen(true);
-                    }}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#BC9EFD] text-[#1A1A24] font-bold text-xs mt-2"
-                  >
-                    <Plus className="w-3.5 h-3.5" />
-                    <span>Criar Primeiro Módulo</span>
-                  </button>
-                )}
+                <button
+                  onClick={() => handleGenerateTracks(true)}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#BC9EFD] text-[#1A1A24] font-bold text-xs shadow-md"
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>Gerar Trilha com IA</span>
+                </button>
               </div>
             ) : (
               modules.map((module) => {
                 const isExpanded = expandedModules[module.id] ?? false;
                 const acts = module.activities || [];
                 const completedCount = acts.filter((a) => progressMap[a.id]).length;
+                const isModuleDone = acts.length > 0 && completedCount === acts.length;
 
                 return (
                   <div
                     key={module.id}
-                    className="rounded-xl bg-[#1E1E2A] border border-[#2D2D40] overflow-hidden transition-all"
+                    className="rounded-xl bg-[#1E1E2A] border border-[#2D2D40] overflow-hidden transition-all shadow-sm"
                   >
                     {/* Module Accordion Header */}
                     <div
@@ -683,7 +935,13 @@ export const CoursesAndTracksView: React.FC = () => {
                       className="p-4 flex items-center justify-between gap-3 cursor-pointer hover:bg-[#222232] transition-colors select-none"
                     >
                       <div className="flex items-center gap-3 min-w-0">
-                        <span className="w-7 h-7 rounded-lg bg-[#1A1A24] border border-[#2D2D40] flex items-center justify-center text-xs font-mono font-bold text-[#BC9EFD] shrink-0">
+                        <span
+                          className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-mono font-bold shrink-0 border ${
+                            isModuleDone
+                              ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                              : 'bg-[#1A1A24] border-[#2D2D40] text-[#BC9EFD]'
+                          }`}
+                        >
                           {module.order}
                         </span>
 
@@ -700,52 +958,10 @@ export const CoursesAndTracksView: React.FC = () => {
                       </div>
 
                       {/* Right Meta & Chevron */}
-                      <div className="flex items-center gap-2 shrink-0">
+                      <div className="flex items-center gap-2.5 shrink-0">
                         <span className="text-[11px] font-mono text-[#A7A5B4]">
-                          {completedCount}/{acts.length}
+                          {completedCount}/{acts.length} concluídas
                         </span>
-
-                        {adminMode && !module.isAiGenerated && (
-                          <div
-                            className="flex items-center gap-1 mr-1"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <button
-                              onClick={() => {
-                                setTargetModuleId(module.id);
-                                setEditingActivity(null);
-                                setActTitle('');
-                                setActWhy('');
-                                setActWhat('');
-                                setActivityModalOpen(true);
-                              }}
-                              className="p-1 rounded bg-[#1A1A24] text-[#BC9EFD] hover:text-white border border-[#2D2D40] text-[10px] px-1.5"
-                              title="Adicionar atividade"
-                            >
-                              + Ativ
-                            </button>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setEditingModule(module);
-                                setModuleTitle(module.title);
-                                setModuleDesc(module.description || '');
-                                setModuleModalOpen(true);
-                              }}
-                              className="p-1 rounded bg-[#1A1A24] text-[#A7A5B4] hover:text-[#F5F4F8] border border-[#2D2D40]"
-                              title="Editar módulo"
-                            >
-                              <Pencil className="w-3 h-3" />
-                            </button>
-                            <button
-                              onClick={(e) => handleDeleteModule(module.id, e)}
-                              className="p-1 rounded bg-[#1A1A24] text-[#A7A5B4] hover:text-rose-400 border border-[#2D2D40]"
-                              title="Excluir módulo"
-                            >
-                              <Trash2 className="w-3 h-3" />
-                            </button>
-                          </div>
-                        )}
 
                         <ChevronDown
                           className={`w-4 h-4 text-[#A7A5B4] transition-transform duration-200 ${
@@ -765,25 +981,24 @@ export const CoursesAndTracksView: React.FC = () => {
                         ) : (
                           acts.map((act) => {
                             const isDone = progressMap[act.id] ?? false;
-                            const freeCount = (act.courses || []).filter((c) => c.isFree).length;
-                            const paidCount = (act.courses || []).filter((c) => !c.isFree).length;
+                            const materialsCount = (act.courses || []).length;
 
                             return (
                               <div
                                 key={act.id}
                                 onClick={() => setSelectedActivity(act)}
-                                className={`p-3 rounded-lg border transition-all cursor-pointer flex items-center justify-between gap-3 group ${
+                                className={`p-3.5 rounded-xl border transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-3 group ${
                                   isDone
-                                    ? 'bg-[#1E1E2A]/70 border-[#2D2D40]'
-                                    : 'bg-[#1E1E2A] border-[#2D2D40] hover:border-[#8B6BD9]/40 hover:bg-[#222232]'
+                                    ? 'bg-[#1A1A24]/90 border-[#2D2D40]'
+                                    : 'bg-[#1E1E2A] border-[#2D2D40] hover:border-[#8B6BD9]/50 hover:bg-[#222232]'
                                 }`}
                               >
                                 {/* Checkbox & Title */}
-                                <div className="flex items-center gap-3 min-w-0">
+                                <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1">
                                   <button
                                     type="button"
                                     onClick={(e) => handleToggleActivity(act.id, e)}
-                                    className={`w-6 h-6 rounded-md flex items-center justify-center shrink-0 transition-colors ${
+                                    className={`w-6 h-6 rounded-md flex items-center justify-center shrink-0 transition-colors mt-0.5 sm:mt-0 ${
                                       isDone
                                         ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
                                         : 'bg-[#1A1A24] text-[#767487] border border-[#2D2D40] hover:border-[#BC9EFD] hover:text-[#BC9EFD]'
@@ -797,7 +1012,7 @@ export const CoursesAndTracksView: React.FC = () => {
                                     )}
                                   </button>
 
-                                  <div className="min-w-0">
+                                  <div className="min-w-0 space-y-0.5">
                                     <h5
                                       className={`text-xs sm:text-sm font-semibold truncate transition-colors ${
                                         isDone
@@ -807,65 +1022,28 @@ export const CoursesAndTracksView: React.FC = () => {
                                     >
                                       {act.title}
                                     </h5>
-                                    <span className="text-[10px] text-[#A7A5B4]">
-                                      {freeCount > 0 ? `${freeCount} curso(s)` : 'Conteúdo guiado'}
-                                      {paidCount > 0 && ` · ${paidCount} pago(s)`}
-                                    </span>
+                                    <p className="text-[11px] text-[#A7A5B4] line-clamp-1">
+                                      {act.whyLearn || 'Atividade acionável de desenvolvimento profissional.'}
+                                    </p>
                                   </div>
                                 </div>
 
-                                {/* Right Action */}
-                                <div className="flex items-center gap-2 shrink-0">
-                                  {adminMode && (
-                                    <div
-                                      className="flex items-center gap-1"
-                                      onClick={(e) => e.stopPropagation()}
-                                    >
-                                      <button
-                                        onClick={() => {
-                                          setTargetActivityId(act.id);
-                                          setCourseTitle('');
-                                          setCoursePlatform('');
-                                          setCourseUrl('');
-                                          setCourseDesc('');
-                                          setCourseIsFree(true);
-                                          setCourseDuration('');
-                                          setCourseLevel('');
-                                          setCourseModality('');
-                                          setCoursePrice('');
-                                          setCourseModalOpen(true);
-                                        }}
-                                        className="text-[10px] px-1.5 py-0.5 rounded bg-[#1A1A24] text-[#BC9EFD] border border-[#2D2D40]"
-                                        title="Adicionar curso"
-                                      >
-                                        + Curso
-                                      </button>
-                                      <button
-                                        onClick={() => {
-                                          setTargetModuleId(module.id);
-                                          setEditingActivity(act);
-                                          setActTitle(act.title);
-                                          setActWhy(act.whyLearn || '');
-                                          setActWhat((act.whatYouWillLearn || []).join('\n'));
-                                          setActivityModalOpen(true);
-                                        }}
-                                        className="p-1 rounded bg-[#1A1A24] text-[#A7A5B4] hover:text-[#F5F4F8] border border-[#2D2D40]"
-                                        title="Editar atividade"
-                                      >
-                                        <Pencil className="w-3 h-3" />
-                                      </button>
-                                      <button
-                                        onClick={(e) => handleDeleteActivity(act.id, e)}
-                                        className="p-1 rounded bg-[#1A1A24] text-[#A7A5B4] hover:text-rose-400 border border-[#2D2D40]"
-                                        title="Excluir atividade"
-                                      >
-                                        <Trash2 className="w-3 h-3" />
-                                      </button>
-                                    </div>
+                                {/* Right Tags and Details Button */}
+                                <div className="flex items-center justify-between sm:justify-end gap-2 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-[#2D2D40]/60">
+                                  {act.practicalExercise && (
+                                    <span className="text-[10px] px-2 py-0.5 rounded-md bg-[#8B6BD9]/15 text-[#BC9EFD] border border-[#BC9EFD]/20">
+                                      Prático
+                                    </span>
                                   )}
 
-                                  <span className="text-xs text-[#BC9EFD] group-hover:translate-x-0.5 transition-transform flex items-center gap-0.5 font-medium">
-                                    <span>Ver</span>
+                                  {materialsCount > 0 && (
+                                    <span className="text-[10px] text-[#A7A5B4]">
+                                      {materialsCount} material(is)
+                                    </span>
+                                  )}
+
+                                  <span className="text-xs text-[#BC9EFD] group-hover:translate-x-0.5 transition-transform flex items-center gap-0.5 font-medium ml-1">
+                                    <span>Ver detalhes</span>
                                     <ChevronRight className="w-3.5 h-3.5" />
                                   </span>
                                 </div>
@@ -884,39 +1062,40 @@ export const CoursesAndTracksView: React.FC = () => {
       )}
 
       {/* ============================================================== */}
-      {/* 3. ACTIVITY DETAILS SCREEN / MODAL                             */}
+      {/* 3. ACTIVITY DETAILS SCREEN / FULLSCREEN DRAWER                 */}
       {/* ============================================================== */}
       {selectedActivity && (
         <div className="fixed inset-0 z-50 bg-[#1A1A24] flex flex-col overflow-hidden animate-fade-in">
           {/* Top Bar with Prominent "X" and Status */}
-          <header className="h-16 bg-[#1E1E2A] border-b border-[#2D2D40] px-4 sm:px-8 flex items-center justify-between gap-4 shrink-0 shadow-sm z-30">
+          <header className="h-16 sm:h-20 bg-[#1E1E2A] border-b border-[#2D2D40] px-4 sm:px-8 flex items-center justify-between gap-4 shrink-0 shadow-md z-30">
             {/* Left: Back to Category */}
             <button
               onClick={() => setSelectedActivity(null)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1A1A24] hover:bg-[#262638] border border-[#2D2D40] text-xs font-semibold text-[#F5F4F8] transition-all cursor-pointer"
+              className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-[#242436] hover:bg-[#2D2D42] border border-[#37374D] text-xs font-semibold text-[#F5F4F8] transition-all cursor-pointer"
             >
               <ArrowLeft className="w-3.5 h-3.5 text-[#BC9EFD]" />
-              <span>Voltar</span>
+              <span className="hidden sm:inline">Voltar para a Trilha</span>
+              <span className="sm:hidden">Voltar</span>
             </button>
 
             {/* Center: Title */}
-            <div className="text-center truncate px-2">
+            <div className="text-center truncate px-2 min-w-0 flex-1">
               <span className="text-[10px] font-mono text-[#BC9EFD] uppercase tracking-wider block">
                 {currentCategory?.title}
               </span>
-              <h2 className="text-sm sm:text-base font-bold text-[#F5F4F8] truncate max-w-sm sm:max-w-md">
+              <h2 className="text-xs sm:text-base font-bold text-[#F5F4F8] truncate max-w-sm sm:max-w-md mx-auto">
                 {selectedActivity.title}
               </h2>
             </div>
 
             {/* Right: Toggle Completion & Close "X" Button */}
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2.5 shrink-0">
               <button
                 onClick={() => handleToggleActivity(selectedActivity.id)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                className={`px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-sm ${
                   progressMap[selectedActivity.id]
                     ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-500/30'
-                    : 'bg-[#8B6BD9] hover:bg-[#9D80E6] text-white shadow-sm'
+                    : 'bg-[#8B6BD9] hover:bg-[#9D80E6] text-white'
                 }`}
               >
                 {progressMap[selectedActivity.id] ? (
@@ -927,18 +1106,18 @@ export const CoursesAndTracksView: React.FC = () => {
                 ) : (
                   <>
                     <Circle className="w-3.5 h-3.5" />
-                    <span>Marcar como Concluída</span>
+                    <span>Marcar Concluída</span>
                   </>
                 )}
               </button>
 
               <button
                 onClick={() => setSelectedActivity(null)}
-                className="p-1.5 rounded-lg bg-[#1A1A24] hover:bg-[#262638] text-[#A7A5B4] hover:text-[#F5F4F8] border border-[#2D2D40] transition-colors"
+                className="p-2 sm:p-2.5 rounded-xl bg-[#28283C] hover:bg-rose-950/40 text-[#A7A5B4] hover:text-rose-300 border border-[#3A3A52] hover:border-rose-800/50 transition-all cursor-pointer shadow-sm group"
                 aria-label="Fechar detalhes"
                 title="Fechar e voltar à tela anterior"
               >
-                <X className="w-5 h-5" />
+                <X className="w-5 h-5 transition-transform group-hover:scale-110" />
               </button>
             </div>
           </header>
@@ -947,28 +1126,28 @@ export const CoursesAndTracksView: React.FC = () => {
           <div className="flex-1 overflow-y-auto p-4 sm:p-8">
             <div className="max-w-3xl mx-auto space-y-6">
               {/* Header Box */}
-              <div className="rounded-xl bg-[#1E1E2A] border border-[#2D2D40] p-5 space-y-1.5">
+              <div className="rounded-2xl bg-[#1E1E2A] border border-[#2D2D40] p-6 space-y-2">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-[#8B6BD9]/15 text-[#BC9EFD]">
+                  <span className="text-xs font-semibold px-2.5 py-0.5 rounded-md bg-[#8B6BD9]/20 text-[#BC9EFD] border border-[#BC9EFD]/30">
                     Atividade de Desenvolvimento
                   </span>
                   {progressMap[selectedActivity.id] && (
-                    <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-300 flex items-center gap-1">
-                      <CheckCircle2 className="w-3 h-3" />
+                    <span className="text-xs font-semibold px-2.5 py-0.5 rounded-md bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
+                      <CheckCircle2 className="w-3.5 h-3.5" />
                       Concluída
                     </span>
                   )}
                 </div>
-                <h3 className="text-xl font-bold text-[#F5F4F8]">
+                <h3 className="text-xl sm:text-2xl font-bold text-[#F5F4F8]">
                   {selectedActivity.title}
                 </h3>
               </div>
 
               {/* 1. Por que aprender */}
-              <div className="rounded-xl bg-[#1E1E2A] border border-[#2D2D40] p-5 space-y-2">
-                <div className="flex items-center gap-2 text-sm font-bold text-[#F5F4F8] border-b border-[#2D2D40] pb-2">
+              <div className="rounded-2xl bg-[#1E1E2A] border border-[#2D2D40] p-6 space-y-2.5">
+                <div className="flex items-center gap-2 text-sm font-bold text-[#F5F4F8] border-b border-[#2D2D40] pb-2.5">
                   <HelpCircle className="w-4 h-4 text-[#BC9EFD]" />
-                  <span>Por que aprender</span>
+                  <span>Por que aprender para o seu objetivo</span>
                 </div>
                 <p className="text-xs sm:text-sm text-[#D4CDE6] leading-relaxed">
                   {selectedActivity.whyLearn ||
@@ -977,483 +1156,143 @@ export const CoursesAndTracksView: React.FC = () => {
               </div>
 
               {/* 2. O que você vai aprender */}
-              <div className="rounded-xl bg-[#1E1E2A] border border-[#2D2D40] p-5 space-y-2">
-                <div className="flex items-center gap-2 text-sm font-bold text-[#F5F4F8] border-b border-[#2D2D40] pb-2">
+              <div className="rounded-2xl bg-[#1E1E2A] border border-[#2D2D40] p-6 space-y-2.5">
+                <div className="flex items-center gap-2 text-sm font-bold text-[#F5F4F8] border-b border-[#2D2D40] pb-2.5">
                   <Sparkles className="w-4 h-4 text-[#BC9EFD]" />
-                  <span>O que você vai aprender</span>
+                  <span>O que você vai dominar</span>
                 </div>
                 <ul className="space-y-2 pt-1">
                   {(selectedActivity.whatYouWillLearn || []).map((item, idx) => (
-                    <li key={idx} className="flex items-start gap-2 text-xs sm:text-sm text-[#D4CDE6]">
-                      <div className="w-3.5 h-3.5 rounded-full bg-[#8B6BD9]/30 text-[#BC9EFD] flex items-center justify-center shrink-0 mt-0.5 text-[9px] font-bold">
+                    <li key={idx} className="flex items-start gap-2.5 text-xs sm:text-sm text-[#D4CDE6]">
+                      <div className="w-4 h-4 rounded-full bg-[#8B6BD9]/30 text-[#BC9EFD] flex items-center justify-center shrink-0 mt-0.5 text-[10px] font-bold">
                         ✓
                       </div>
-                      <span>{item}</span>
+                      <span className="leading-relaxed">{item}</span>
                     </li>
                   ))}
                 </ul>
               </div>
 
-              {/* 3. Cursos Gratuitos */}
-              <div className="rounded-xl bg-[#1E1E2A] border border-[#2D2D40] p-5 space-y-3">
-                <div className="flex items-center justify-between border-b border-[#2D2D40] pb-2">
-                  <div className="flex items-center gap-2 text-sm font-bold text-emerald-400">
-                    <GraduationCap className="w-4 h-4 text-emerald-400" />
-                    <span>Cursos Gratuitos</span>
+              {/* 3. Exercício Prático / Entregável */}
+              {selectedActivity.practicalExercise && (
+                <div className="rounded-2xl bg-[#201D30] border border-[#BC9EFD]/40 p-6 space-y-2.5">
+                  <div className="flex items-center gap-2 text-sm font-bold text-[#BC9EFD] border-b border-[#BC9EFD]/20 pb-2.5">
+                    <Award className="w-4 h-4 text-[#BC9EFD]" />
+                    <span>Exercício Prático / Entregável</span>
+                  </div>
+                  <p className="text-xs sm:text-sm text-[#F5F4F8] leading-relaxed">
+                    {selectedActivity.practicalExercise}
+                  </p>
+                </div>
+              )}
+
+              {/* 4. Critério de Conclusão */}
+              {selectedActivity.completionCriteria && (
+                <div className="rounded-2xl bg-[#1A2624] border border-emerald-500/30 p-6 space-y-2.5">
+                  <div className="flex items-center gap-2 text-sm font-bold text-emerald-300 border-b border-emerald-500/20 pb-2.5">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                    <span>Critério de Conclusão</span>
+                  </div>
+                  <p className="text-xs sm:text-sm text-emerald-100/90 leading-relaxed">
+                    {selectedActivity.completionCriteria}
+                  </p>
+                </div>
+              )}
+
+              {/* 5. Materiais e Links Confiáveis */}
+              <div className="rounded-2xl bg-[#1E1E2A] border border-[#2D2D40] p-6 space-y-3.5">
+                <div className="flex items-center justify-between border-b border-[#2D2D40] pb-2.5">
+                  <div className="flex items-center gap-2 text-sm font-bold text-[#F5F4F8]">
+                    <GraduationCap className="w-4 h-4 text-[#BC9EFD]" />
+                    <span>Materiais de Estudo Recomendados</span>
                   </div>
                   <span className="text-[11px] text-[#A7A5B4]">
-                    Materiais abertos e capacitações sem custo
+                    Fontes oficiais e plataformas verificáveis
                   </span>
                 </div>
 
-                {(() => {
-                  const freeList = (selectedActivity.courses || []).filter((c) => c.isFree);
-                  if (freeList.length === 0) {
-                    return (
-                      <div className="p-4 rounded-lg bg-[#1A1A24] border border-[#2D2D40] text-center text-xs text-[#A7A5B4]">
-                        Não foi encontrado um recurso correspondente no catálogo cadastrado.
-                      </div>
-                    );
-                  }
-
-                  return (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {freeList.map((course) => (
-                        <div
-                          key={course.id}
-                          className="rounded-lg bg-[#1A1A24] border border-[#2D2D40] p-3.5 flex flex-col justify-between space-y-2.5"
-                        >
-                          <div className="space-y-1">
-                            <span className="font-semibold text-emerald-400 text-[11px] block">
-                              {course.platform}
-                            </span>
-                            <h4 className="text-xs sm:text-sm font-bold text-[#F5F4F8] leading-snug">
-                              {course.title}
-                            </h4>
-                            <p className="text-xs text-[#A7A5B4] line-clamp-2 leading-relaxed">
-                              {course.description}
-                            </p>
-                            {(course.level || course.modality || typeof course.price === 'number') && (
-                              <p className="text-[10px] text-[#767487]">
-                                {[course.level, course.modality, typeof course.price === 'number' ? `R$ ${course.price.toFixed(2)}` : '']
-                                  .filter(Boolean).join(' · ')}
-                              </p>
-                            )}
-                          </div>
-
-                          <div className="pt-2 border-t border-[#2D2D40] flex items-center justify-between text-xs">
-                            {course.estimatedDuration && (
-                              <span className="text-[10px] text-[#767487] flex items-center gap-1">
-                                <Clock className="w-3 h-3 text-emerald-400" />
-                                {course.estimatedDuration}
-                              </span>
-                            )}
-
-                            <div className="flex items-center gap-2 ml-auto">
-                              {adminMode && !selectedActivity.id.startsWith('gemini-') && (
-                                <button
-                                  onClick={() =>
-                                    handleDeleteCourse(selectedActivity.id, course.id)
-                                  }
-                                  className="text-xs text-rose-400 hover:text-rose-300 p-1"
-                                  title="Remover curso"
-                                >
-                                  <Trash2 className="w-3.5 h-3.5" />
-                                </button>
-                              )}
-
-                              {course.url ? (
-                                <a
-                                  href={course.url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-400 hover:text-emerald-300"
-                                >
-                                  <span>Acessar</span>
-                                  <ExternalLink className="w-3 h-3" />
-                                </a>
-                              ) : (
-                                <span className="text-xs text-[#767487]">Link não informado</span>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  );
-                })()}
-              </div>
-
-              {/* 4. Cursos Pagos (Opcional) */}
-              <div className="rounded-xl bg-[#1E1E2A] border border-[#2D2D40] p-5 space-y-3">
-                <div className="flex items-center justify-between border-b border-[#2D2D40] pb-2">
-                  <div className="flex items-center gap-2 text-sm font-bold text-[#BC9EFD]">
-                    <Tag className="w-4 h-4 text-[#BC9EFD]" />
-                    <span>Cursos Pagos (Opcional)</span>
+                {(!selectedActivity.courses || selectedActivity.courses.length === 0) ? (
+                  <div className="p-4 rounded-xl bg-[#1A1A24] border border-[#2D2D40] text-center text-xs text-[#A7A5B4]">
+                    Para esta atividade, utilize as documentações oficiais e livros de referência recomendados nos tópicos de estudo.
                   </div>
-                  <span className="text-[11px] text-[#A7A5B4]">
-                    Para quem deseja investir em formações complementares
-                  </span>
-                </div>
-
-                {(() => {
-                  const paidList = (selectedActivity.courses || []).filter((c) => !c.isFree);
-                  if (paidList.length === 0) {
-                    return (
-                      <div className="p-4 rounded-lg bg-[#1A1A24] border border-[#2D2D40] text-center text-xs text-[#A7A5B4]">
-                        Não foi encontrado um recurso correspondente no catálogo cadastrado.
-                      </div>
-                    );
-                  }
-
-                  return (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {paidList.map((course) => (
-                        <div
-                          key={course.id}
-                          className="rounded-lg bg-[#1A1A24] border border-[#2D2D40] p-3.5 flex flex-col justify-between space-y-2.5"
-                        >
-                          <div className="space-y-1">
-                            <span className="font-semibold text-[#BC9EFD] text-[11px] block">
-                              {course.platform}
-                            </span>
-                            <h4 className="text-xs sm:text-sm font-bold text-[#F5F4F8] leading-snug">
-                              {course.title}
-                            </h4>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    {selectedActivity.courses.map((course, idx) => (
+                      <div
+                        key={course.id || idx}
+                        className="rounded-xl bg-[#1A1A24] border border-[#2D2D40] p-4 flex flex-col justify-between space-y-3"
+                      >
+                        <div className="space-y-1">
+                          <span className="font-semibold text-emerald-400 text-[11px] block">
+                            {course.platform}
+                          </span>
+                          <h4 className="text-xs sm:text-sm font-bold text-[#F5F4F8] leading-snug">
+                            {course.title}
+                          </h4>
+                          {course.description && (
                             <p className="text-xs text-[#A7A5B4] line-clamp-2 leading-relaxed">
                               {course.description}
                             </p>
-                            {(course.level || course.modality || typeof course.price === 'number') && (
-                              <p className="text-[10px] text-[#767487]">
-                                {[course.level, course.modality, typeof course.price === 'number' ? `R$ ${course.price.toFixed(2)}` : '']
-                                  .filter(Boolean).join(' · ')}
-                              </p>
-                            )}
-                          </div>
-
-                          <div className="pt-2 border-t border-[#2D2D40] flex items-center justify-between text-xs">
-                            {course.estimatedDuration && (
-                              <span className="text-[10px] text-[#767487] flex items-center gap-1">
-                                <Clock className="w-3 h-3 text-[#BC9EFD]" />
-                                {course.estimatedDuration}
-                              </span>
-                            )}
-
-                            <div className="flex items-center gap-2 ml-auto">
-                              {adminMode && !selectedActivity.id.startsWith('gemini-') && (
-                                <button
-                                  onClick={() =>
-                                    handleDeleteCourse(selectedActivity.id, course.id)
-                                  }
-                                  className="text-xs text-rose-400 hover:text-rose-300 p-1"
-                                  title="Remover curso"
-                                >
-                                  <Trash2 className="w-3.5 h-3.5" />
-                                </button>
-                              )}
-
-                              {course.url ? (
-                                <a
-                                  href={course.url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="inline-flex items-center gap-1 text-xs font-semibold text-[#BC9EFD] hover:text-[#9D80E6]"
-                                >
-                                  <span>Acessar</span>
-                                  <ExternalLink className="w-3 h-3" />
-                                </a>
-                              ) : (
-                                <span className="text-xs text-[#767487]">Link não informado</span>
-                              )}
-                            </div>
-                          </div>
+                          )}
                         </div>
-                      ))}
-                    </div>
-                  );
-                })()}
+
+                        <div className="pt-2 border-t border-[#2D2D40] flex items-center justify-between text-xs">
+                          {course.estimatedDuration ? (
+                            <span className="text-[10px] text-[#767487] flex items-center gap-1">
+                              <Clock className="w-3 h-3 text-[#BC9EFD]" />
+                              {course.estimatedDuration}
+                            </span>
+                          ) : (
+                            <span className="text-[10px] text-[#767487]">Sob demanda</span>
+                          )}
+
+                          {course.url && (
+                            <a
+                              href={course.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 text-xs font-semibold text-[#BC9EFD] hover:text-white"
+                            >
+                              <span>Acessar</span>
+                              <ExternalLink className="w-3 h-3" />
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </div>
-        </div>
-      )}
 
-      {/* ============================================================== */}
-      {/* 4. MODALS DE ADMINISTRAÇÃO (MÓDULO, ATIVIDADE, CURSO)           */}
-      {/* ============================================================== */}
+          {/* Footer Action Bar */}
+          <footer className="h-16 bg-[#1E1E2A] border-t border-[#2D2D40] px-4 sm:px-8 flex items-center justify-between gap-4 shrink-0 shadow-md z-20">
+            <button
+              onClick={() => setSelectedActivity(null)}
+              className="px-4 py-2 rounded-xl bg-[#242436] hover:bg-[#2D2D42] border border-[#37374D] text-xs font-semibold text-[#A7A5B4] hover:text-[#F5F4F8] transition-colors cursor-pointer"
+            >
+              Fechar Detalhes
+            </button>
 
-      {/* Modal: Módulo */}
-      {moduleModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs">
-          <div className="bg-[#1E1E2A] border border-[#2D2D40] rounded-2xl w-full max-w-md p-6 space-y-4 shadow-xl">
-            <div className="flex items-center justify-between">
-              <h3 className="text-base font-bold text-[#F5F4F8]">
-                {editingModule ? 'Editar Módulo' : 'Novo Módulo'}
-              </h3>
-              <button
-                onClick={() => setModuleModalOpen(false)}
-                className="text-[#A7A5B4] hover:text-[#F5F4F8]"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <form onSubmit={handleSaveModule} className="space-y-3">
-              <div>
-                <label className="block text-xs text-[#A7A5B4] mb-1">Título do Módulo *</label>
-                <input
-                  type="text"
-                  required
-                  value={moduleTitle}
-                  onChange={(e) => setModuleTitle(e.target.value)}
-                  placeholder="Ex: Módulo 1: Fundamentos"
-                  className="w-full bg-[#1A1A24] border border-[#2D2D40] rounded-lg px-3 py-2 text-sm text-[#F5F4F8] focus:border-[#BC9EFD]"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs text-[#A7A5B4] mb-1">Descrição</label>
-                <textarea
-                  rows={2}
-                  value={moduleDesc}
-                  onChange={(e) => setModuleDesc(e.target.value)}
-                  placeholder="Breve resumo dos conceitos deste módulo..."
-                  className="w-full bg-[#1A1A24] border border-[#2D2D40] rounded-lg px-3 py-2 text-sm text-[#F5F4F8] focus:border-[#BC9EFD]"
-                />
-              </div>
-
-              <div className="flex justify-end gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setModuleModalOpen(false)}
-                  className="px-3 py-1.5 rounded-lg bg-[#1A1A24] text-xs text-[#A7A5B4] hover:text-[#F5F4F8]"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-1.5 rounded-lg bg-[#8B6BD9] hover:bg-[#9D80E6] text-white text-xs font-semibold"
-                >
-                  Salvar
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Modal: Atividade */}
-      {activityModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs">
-          <div className="bg-[#1E1E2A] border border-[#2D2D40] rounded-2xl w-full max-w-lg p-6 space-y-4 shadow-xl max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between">
-              <h3 className="text-base font-bold text-[#F5F4F8]">
-                {editingActivity ? 'Editar Atividade' : 'Nova Atividade'}
-              </h3>
-              <button
-                onClick={() => setActivityModalOpen(false)}
-                className="text-[#A7A5B4] hover:text-[#F5F4F8]"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <form onSubmit={handleSaveActivity} className="space-y-3">
-              <div>
-                <label className="block text-xs text-[#A7A5B4] mb-1">Título da Atividade *</label>
-                <input
-                  type="text"
-                  required
-                  value={actTitle}
-                  onChange={(e) => setActTitle(e.target.value)}
-                  placeholder="Ex: Sistemas Operacionais"
-                  className="w-full bg-[#1A1A24] border border-[#2D2D40] rounded-lg px-3 py-2 text-sm text-[#F5F4F8]"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs text-[#A7A5B4] mb-1">Por que aprender</label>
-                <textarea
-                  rows={3}
-                  value={actWhy}
-                  onChange={(e) => setActWhy(e.target.value)}
-                  placeholder="Explique a relevância para o mercado e trajetória profissional..."
-                  className="w-full bg-[#1A1A24] border border-[#2D2D40] rounded-lg px-3 py-2 text-sm text-[#F5F4F8]"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs text-[#A7A5B4] mb-1">
-                  O que você vai aprender (um item por linha)
-                </label>
-                <textarea
-                  rows={3}
-                  value={actWhat}
-                  onChange={(e) => setActWhat(e.target.value)}
-                  placeholder="Estrutura de processos e threads&#10;Gerenciamento de memória&#10;Sistemas de arquivos"
-                  className="w-full bg-[#1A1A24] border border-[#2D2D40] rounded-lg px-3 py-2 text-sm text-[#F5F4F8]"
-                />
-              </div>
-
-              <div className="flex justify-end gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setActivityModalOpen(false)}
-                  className="px-3 py-1.5 rounded-lg bg-[#1A1A24] text-xs text-[#A7A5B4]"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-1.5 rounded-lg bg-[#8B6BD9] text-white text-xs font-semibold"
-                >
-                  Salvar
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Modal: Curso */}
-      {courseModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs">
-          <div className="bg-[#1E1E2A] border border-[#2D2D40] rounded-2xl w-full max-w-md p-6 space-y-4 shadow-xl">
-            <div className="flex items-center justify-between">
-              <h3 className="text-base font-bold text-[#F5F4F8]">Adicionar Curso à Atividade</h3>
-              <button
-                onClick={() => setCourseModalOpen(false)}
-                className="text-[#A7A5B4] hover:text-[#F5F4F8]"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <form onSubmit={handleSaveCourse} className="space-y-3">
-              <div>
-                <label className="block text-xs text-[#A7A5B4] mb-1">Título do Curso *</label>
-                <input
-                  type="text"
-                  required
-                  value={courseTitle}
-                  onChange={(e) => setCourseTitle(e.target.value)}
-                  placeholder="Ex: Introdução a Sistemas Operacionais"
-                  className="w-full bg-[#1A1A24] border border-[#2D2D40] rounded-lg px-3 py-2 text-sm text-[#F5F4F8]"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs text-[#A7A5B4] mb-1">Plataforma *</label>
-                  <input
-                    type="text"
-                    required
-                    value={coursePlatform}
-                    onChange={(e) => setCoursePlatform(e.target.value)}
-                    placeholder="Ex: Coursera, YouTube, Udemy"
-                    className="w-full bg-[#1A1A24] border border-[#2D2D40] rounded-lg px-3 py-2 text-sm text-[#F5F4F8]"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs text-[#A7A5B4] mb-1">Duração Estimada</label>
-                  <input
-                    type="text"
-                    value={courseDuration}
-                    onChange={(e) => setCourseDuration(e.target.value)}
-                    placeholder="Ex: 8 horas"
-                    className="w-full bg-[#1A1A24] border border-[#2D2D40] rounded-lg px-3 py-2 text-sm text-[#F5F4F8]"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs text-[#A7A5B4] mb-1">Link de Acesso</label>
-                <input
-                  type="url"
-                  value={courseUrl}
-                  onChange={(e) => setCourseUrl(e.target.value)}
-                  placeholder="https://... (opcional)"
-                  className="w-full bg-[#1A1A24] border border-[#2D2D40] rounded-lg px-3 py-2 text-sm text-[#F5F4F8]"
-                />
-              </div>
-
-              <div className="grid grid-cols-3 gap-3">
-                <div>
-                  <label className="block text-xs text-[#A7A5B4] mb-1">Nível</label>
-                  <input
-                    type="text"
-                    value={courseLevel}
-                    onChange={(e) => setCourseLevel(e.target.value)}
-                    placeholder="Intermediário"
-                    className="w-full bg-[#1A1A24] border border-[#2D2D40] rounded-lg px-3 py-2 text-sm text-[#F5F4F8]"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs text-[#A7A5B4] mb-1">Modalidade</label>
-                  <input
-                    type="text"
-                    value={courseModality}
-                    onChange={(e) => setCourseModality(e.target.value)}
-                    placeholder="Online"
-                    className="w-full bg-[#1A1A24] border border-[#2D2D40] rounded-lg px-3 py-2 text-sm text-[#F5F4F8]"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs text-[#A7A5B4] mb-1">Preço (R$)</label>
-                  <input
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={coursePrice}
-                    onChange={(e) => setCoursePrice(e.target.value)}
-                    placeholder="0,00"
-                    className="w-full bg-[#1A1A24] border border-[#2D2D40] rounded-lg px-3 py-2 text-sm text-[#F5F4F8]"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs text-[#A7A5B4] mb-1">Breve Descrição</label>
-                <textarea
-                  rows={2}
-                  value={courseDesc}
-                  onChange={(e) => setCourseDesc(e.target.value)}
-                  placeholder="Resumo do conteúdo programático..."
-                  className="w-full bg-[#1A1A24] border border-[#2D2D40] rounded-lg px-3 py-2 text-sm text-[#F5F4F8]"
-                />
-              </div>
-
-              <div className="flex items-center gap-2 pt-1">
-                <input
-                  type="checkbox"
-                  id="isFreeCheck"
-                  checked={courseIsFree}
-                  onChange={(e) => setCourseIsFree(e.target.checked)}
-                  className="rounded border-[#2D2D40] text-[#8B6BD9] focus:ring-[#BC9EFD]"
-                />
-                <label htmlFor="isFreeCheck" className="text-xs text-[#F5F4F8]">
-                  Curso gratuito (sem custos para o usuário)
-                </label>
-              </div>
-
-              <div className="flex justify-end gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setCourseModalOpen(false)}
-                  className="px-3 py-1.5 rounded-lg bg-[#1A1A24] text-xs text-[#A7A5B4]"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-1.5 rounded-lg bg-[#8B6BD9] text-white text-xs font-semibold"
-                >
-                  Salvar Curso
-                </button>
-              </div>
-            </form>
-          </div>
+            <button
+              onClick={() => {
+                handleToggleActivity(selectedActivity.id);
+              }}
+              className={`px-5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shadow-md ${
+                progressMap[selectedActivity.id]
+                  ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
+                  : 'bg-[#BC9EFD] hover:bg-[#CDAFFD] text-[#1A1A24]'
+              }`}
+            >
+              <CheckCircle2 className="w-4 h-4" />
+              <span>
+                {progressMap[selectedActivity.id]
+                  ? 'Atividade Concluída'
+                  : 'Marcar Atividade como Concluída'}
+              </span>
+            </button>
+          </footer>
         </div>
       )}
     </div>

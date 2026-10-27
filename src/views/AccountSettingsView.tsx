@@ -82,7 +82,7 @@ export const AccountSettingsView: React.FC = () => {
       const res = await systemApi.pingBackend();
       setPingResult(
         res.online
-          ? `Sucesso: Backend Atlas online em ${res.url}`
+          ? `Sucesso: Backend Atlas online (${res.url}) com Armazenamento Criptografado (AES-256-GCM)`
           : `Aviso: ${res.message}.`
       );
       await checkBackendStatus();
@@ -117,7 +117,7 @@ export const AccountSettingsView: React.FC = () => {
             Configurações da Conta
           </h2>
           <p className="text-xs text-[#A7A5B4] mt-1">
-            Gerencie sua segurança, parâmetros de integração com a API Spring Boot e privacidade dos dados.
+            Gerencie sua segurança, parâmetros de integração e privacidade dos dados.
           </p>
         </div>
 

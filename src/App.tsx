@@ -7,7 +7,6 @@ import { ProfileHubView } from './views/ProfileHubView';
 import { CoursesAndTracksView } from './views/CoursesAndTracksView';
 import { JobsView } from './views/JobsView';
 import { AccountSettingsView } from './views/AccountSettingsView';
-import { AiRoadmapView } from './views/AiRoadmapView';
 import { profileApi } from './services/api';
 import { DashboardSummary } from './types';
 
@@ -84,8 +83,9 @@ const MainApp: React.FC = () => {
           {activeTab === 'profile' && (
             <ProfileHubView onNavigateToCourses={() => setActiveTab('courses-tracks')} />
           )}
-          {activeTab === 'courses-tracks' && <CoursesAndTracksView />}
-          {activeTab === 'ai-roadmap' && <AiRoadmapView />}
+          {activeTab === 'courses-tracks' && (
+            <CoursesAndTracksView onNavigateToProfile={() => setActiveTab('profile')} />
+          )}
           {activeTab === 'jobs' && (
             <JobsView onNavigateToCourses={() => setActiveTab('courses-tracks')} />
           )}

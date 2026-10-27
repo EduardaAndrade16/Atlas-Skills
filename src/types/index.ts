@@ -18,7 +18,6 @@ export interface UserProfile {
   primaryArea: string;
   secondaryAreas: string[];
   careerGoal: string;
-  learningObjectives?: string[];
   phone?: string;
   location?: string;
   linkedinUrl?: string;
@@ -146,17 +145,14 @@ export interface GapAnalysisResponse {
 export type TrackCategoryKey = 'hard-skills' | 'soft-skills' | 'linkedin' | 'curriculo';
 
 export interface CourseMaterial {
-  id: string;
+  id?: string;
   title: string;
   platform: string;
-  url?: string;
+  url: string;
   description: string;
-  isFree: boolean;
+  isFree?: boolean;
   estimatedDuration?: string;
   isDemo?: boolean;
-  price?: number;
-  level?: string;
-  modality?: string;
 }
 
 export interface TrackActivity {
@@ -166,6 +162,8 @@ export interface TrackActivity {
   order: number;
   whyLearn: string;
   whatYouWillLearn: string[];
+  practicalExercise?: string;
+  completionCriteria?: string;
   courses: CourseMaterial[];
 }
 
@@ -176,19 +174,6 @@ export interface TrackModule {
   description?: string;
   order: number;
   activities: TrackActivity[];
-  isAiGenerated?: boolean;
-  generatedAt?: string;
-  goal?: string;
-  competencies?: string[];
-  estimatedHours?: number;
-}
-
-export interface PersonalizedLearningTrack {
-  id: string;
-  generatedAt: string;
-  goal: string;
-  competencies: string[];
-  modules: TrackModule[];
 }
 
 export interface TrackCategory {
@@ -196,6 +181,16 @@ export interface TrackCategory {
   title: string;
   subtitle: string;
   description: string;
+  estimatedLevel?: string;
+  learningObjective?: string;
+}
+
+export interface PersonalizedTrackPackage {
+  generatedAt: string;
+  userGoal: string;
+  userArea: string;
+  categories: TrackCategory[];
+  modules: TrackModule[];
 }
 
 export type SeniorityLevel = 'ESTAGIO' | 'JUNIOR' | 'PLENO' | 'SENIOR' | 'ESPECIALISTA' | 'LEAD';
